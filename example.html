@@ -1,0 +1,118 @@
+<html>
+  <head>
+    <title>Baches</title>
+    <!-- Enabling responsive features -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map_canvas { height: 100% }
+    </style>
+    <!-- Font Awesome -->
+    <link href="css/font-awesome.css" rel="stylesheet">
+    <!-- Mis estilos CSS -->
+    <link type="text/css" rel="stylesheet" href="css/mis_estilos.css">
+    <!-- Bootstrap CSS-->
+    <!-- <link href="css/bootstrap.min.css" rel="stylesheet" media="screen"> -->
+    <link href="css/cerulean_bootstrap.min.css" rel="stylesheet" media="screen">
+    
+    <!-- JQUERY -->
+    <script type="text/javascript" src="js/jquery-2.1.0.min.js"></script>
+    <!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"></script> -->
+    <!-- UI-MAP -->
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&amp;sensor=true&amp;libraries=places"></script>
+    <!-- Geocomplete -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/jquery.geocomplete.js"></script>
+    <!-- Bootstrap JS-->
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <!-- Mis JS -->
+    <script type="text/javascript" src="js/mi_javascript.js"></script>
+  </head>
+  <!-- <body onload="initialize()"> -->
+  <body onload="initialize()">
+    <!-- <nav class="navbar navbar-default navbar-fixed-top" role="navigation"> -->
+    <nav class="navbar navbar-default" role="navigation">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"><i class="fa fa-truck fa-fw fa-lg fa-spin"></i> Registrar Baches</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#"><i class="fa fa-home fa-fw fa-lg"></i> Home</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-map-marker"></i> Baches <b class="caret"></b></a>
+               <ul class="dropdown-menu">
+                <li><a href="#"><i class="fa fa-plus-square"></i> Agregar</a></li>
+                <li><a id="eliminarMarcador" href="#"><i class="fa fa-minus-circle"></i> Eliminar</a></li>
+                <li><a id="verBaches" href="#"><i class="fa fa-tags"></i> Ver</a></li>
+               </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-road fa-lg"></i> Calles <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">9 de Julio</a></li>
+                <li><a href="#">Fontana</a></li>
+                <li><a href="#">Seleccionar</a></li>
+                <li>
+                  <!-- Sub-Menú -->
+                  <a class="trigger right-caret">Seleccionar</a>
+                  <ul class="dropdown-menu sub-menu">
+                    <li><a href="#">Ingresar</a></li>
+                    <li>
+                      <a class="trigger right-caret">Level 2</a>
+                    </li>
+                    <li><a href="#">Level 2</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <form class="navbar-form navbar-left" role="search">
+            <div class="form-group">
+              <input id='inputGeoComplete' type="text" class="form-control" placeholder="Search">
+            </div>
+            <button type="submit" class="btn btn-default"><i class="fa fa-search"></i> Submit</button>
+          </form>
+          <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="icon-bar glyphicon glyphicon-user"></span> Login <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li><a href="#">Separated link</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+    <!-- Large modal -->
+    <div id="my-modal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        </div>
+      </div>
+    </div>
+    <!-- Small modal -->
+    <div id="small-modal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+        </div>
+      </div>
+    </div>
+    <div id="map_canvas" style="width:100%; height:100%"></div>
+  </body>
+</html>
