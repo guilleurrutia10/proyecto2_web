@@ -28,6 +28,7 @@ $(function () {
   detectarUbicacionAct();
   $("#eliminarMarcador").click(borrarMarcador);
   //mostrarModal(); 
+  //Utilizando Geocomplete
   $("#inputGeoComplete").geocomplete();  // Option 1: Call on element.
   $.fn.geocomplete("#inputGeoComplete"); // Option 2: Pass element as argument.
 });
@@ -54,7 +55,8 @@ var formularioString='<form id="add-point" method="post" onsubmit= "return regis
 
 
 function initialize() {
-  var myLatlng = new google.maps.LatLng(-43.25333333, -65.30944);
+  //var myLatlng = new google.maps.LatLng(-43.25333333, -65.30944);
+  var myLatlng = [-43.25333333, -65.30944];
   mapOptions = {
     zoom: 16,
     center: myLatlng,
@@ -62,56 +64,85 @@ function initialize() {
     //mapTypeId: google.maps.MapTypeId.HYBRID
     mapTypeId: google.maps.MapTypeId.ROADMAP
   }
-  map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
-  var marker = new google.maps.Marker({
-      position: myLatlng,
-      map: map,
-      title: 'Alberto J. Armando'
+
+  var selectorMap = $('#map_canvas').gmap3({
+   map:{
+      options:{
+       center: myLatlng,
+       zoom: 16,
+       mapTypeId: google.maps.MapTypeId.ROADMAP,
+       mapTypeControl: true,
+       mapTypeControlOptions: {
+         style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+       },
+       navigationControl: true,
+       scrollwheel: true,
+       streetViewControl: true
+      },
+      events:{
+        click: agregarMarcador
+      }
+   }
   });
-  var infowindow = new google.maps.InfoWindow({
-        //content: 'La Bombonera'
-        content: marker.title
-    });
-  google.maps.event.addListener(marker, 'rightclick', function() {
-      infowindow.open(map,marker);
-      });
+  map = selectorMap[0];   //map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+  $('#map_canvas').gmap3({
+    marker:{
+        latLng: myLatlng,
+        data: 'Plaza Independencia'
+    }
+  });
+  // var marker = new google.maps.Marker({
+  //     position: myLatlng,
+  //     map: map,
+  //     title: 'Plaza Independencia'
+  // });
+  // var infowindow = new google.maps.InfoWindow({
+  //       //content: 'La Bombonera'
+  //       content: marker.title
+  //   });
+  // google.maps.event.addListener(marker, 'rightclick', function() {
+  //     infowindow.open(map,marker);
+  //     });
   //Se inicializa el consultor direccion a latlng y latlong a direccion
   geocoder = new google.maps.Geocoder();
 
-  google.maps.event.addListener(marker, 'click', function () {
-    // body...
-    marcadorSeleccionado = marker;
-    mostrarModalMarcador();
-  });
+  // google.maps.event.addListener(marker, 'click', function () {
+  //   // body...
+  //   marcadorSeleccionado = marker;
+  //   mostrarModalMarcador();
+  // });
 
-  //Placing position 
-  google.maps.event.addListener(map, 'click', function(event) {
-    agregarMarcador(event.latLng);
-    alert(event.latLng);
-  });
+  // //Placing position 
+  // google.maps.event.addListener(map, 'click', function(event) {
+  //   agregarMarcador(event.latLng);
+  //   alert(event.latLng);
+  // });
 
   $("#inputGeoComplete").geocomplete({
     map: map
   });
 }
 
-function agregarMarcador (latLng) {
-  alert(latLng);
-  var marker = new google.maps.Marker({
-       position: latLng,
-       map: map,
-       title: 'Nuevo'
-   });
-  var infowindow = new google.maps.InfoWindow({
-        content: marker.title
-    });
-  google.maps.event.addListener(marker, 'rightclick', function() {
-      infowindow.open(map,marker);
-      });
-  google.maps.event.addListener(marker, 'click', function () {
-    marcadorSeleccionado = marker;
-    mostrarModalMarcador();
+function agregarMarcador (map, event) {
+  debugger;
+  alert(event.latLng);
+  $('#map_canvas').gmap3({
+    marker: {
+      latLng: event.latLng,
+      events: {
+        click: function (marker, event, context) {
+          marcadorSeleccionado = marker;
+          mostrarModalMarcador();
+        }
+      }
+    }
   });
+  // var infowindow = new google.maps.InfoWindow({
+  //       content: marker.title
+  //   });
+  // google.maps.event.addListener(marker, 'rightclick', function() {
+  //     infowindow.open(map,marker);
+  //     });
 }
 
 function mostrarModal () {
@@ -186,24 +217,38 @@ function agregarMarcadores (marcador) {
   if (result>=0)
     return;
 
-  var latLng = new google.maps.LatLng(marcador.latitud, marcador.longitud);
-  var marker = new google.maps.Marker({
-       position: latLng,
-       map: map,
-       title: marcador.nombre
-   });
-  var infowindow = new google.maps.InfoWindow({
-        content: marcador.nombre
-    });
-  google.maps.event.addListener(marker, 'click', function () {
-    // body...
-    marcadorSeleccionado = marker;
-    mostrarModalMarcador();
+  $('#map_canvas').gmap3({
+    marker: {
+      latLng: [marcador.latitud, marcador.longitud],
+      title: marcador.nombre,
+      options: {
+        icon: "http://maps.google.com/mapfiles/marker_green.png"
+      },
+      events: {
+        click: function (marker, event, context) {
+          marcadorSeleccionado = marker;
+          mostrarModalMarcador();
+          marcadores[marcador.id] = marker;
+        }
+      }
+    }
   });
-  google.maps.event.addListener(marker, 'rightclick', function() {
-      infowindow.open(map,marker);
-      });
-  marcadores[marcador.id] = marker;
+  // var latLng = new google.maps.LatLng(marcador.latitud, marcador.longitud);
+  // var marker = new google.maps.Marker({
+  //      position: latLng,
+  //      map: map,
+  //      title: marcador.nombre
+  //  });
+  // var infowindow = new google.maps.InfoWindow({
+  //       content: marcador.nombre
+  //   });
+  // google.maps.event.addListener(marker, 'click', function () {
+  //   marcadorSeleccionado = marker;
+  //   mostrarModalMarcador();
+  // });
+  // google.maps.event.addListener(marker, 'rightclick', function() {
+  //     infowindow.open(map,marker);
+  //     });
 }
 
 var alertHtml =''+ 
