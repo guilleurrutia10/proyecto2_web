@@ -17,13 +17,21 @@
     <!-- <link href="css/bootstrap.min.css" rel="stylesheet" media="screen"> -->
     <link href="css/cerulean_bootstrap.min.css" rel="stylesheet" media="screen">
     
+    <!-- CSS de los estilos usados para cada uno de los divs -->
+    <link type="text/css" rel="stylesheet" href="css/clusterMarkerers.css">
+    <!-- Estilos CSS para el menu contextual-->   
+    <link type="text/css" rel="stylesheet" href="css/estiloMenuContextual.css">
+
     <!-- JQUERY -->
     <script type="text/javascript" src="js/jquery-2.1.0.min.js"></script>
     <!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"></script> -->
     <!-- UI-MAP -->
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&amp;sensor=true&amp;libraries=places"></script>
+      <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&amp;libraries=drawing"></script>
+
+
     <!-- Geocomplete -->
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
     <script type="text/javascript" src="js/jquery.geocomplete.js"></script>
     <!-- GMAP3 -->
     <script type="text/javascript" src="js/gmap3.min.js"></script>
@@ -31,6 +39,11 @@
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <!-- Mis JS -->
     <script type="text/javascript" src="js/mi_javascript.js"></script>
+    <!-- Script para la generacion de un dialogo-->
+    <script type="text/javascript" src="js/jquery.generateFile.js"></script>
+    <!-- Funcion para cargar los menus en Gmap3-->
+    <script type="text/javascript" src="js/menuGmap3.js"></script>
+
   </head>
   <!-- <body onload="initialize()"> -->
   <body onload="initialize()">
@@ -58,6 +71,7 @@
                 <li><a href="#"><i class="fa fa-plus-square"></i> Agregar</a></li>
                 <li><a id="eliminarMarcador" href="#"><i class="fa fa-minus-circle"></i> Eliminar</a></li>
                 <li><a id="verBaches" href="#"><i class="fa fa-tags"></i> Ver</a></li>
+                <li><a id="exportarBaches" href="#"><i class="glyphicon glyphicon-star-empty"></i> Exportar marcadores</a></li>
                </ul>
             </li>
             <li class="dropdown">
@@ -115,6 +129,35 @@
         </div>
       </div>
     </div>
-    <div id="map_canvas" style="width:100%; height:100%"></div>
+
+  <!-- Modal para mostrar -->
+  <div id= "modalRodrigo"class="modal fade">
+  <div class="modal-dialog" style="width:680px">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+        <h4 class="modal-title glyphicon glyphicon-bookmark">Exportar marcadores </h4>
+      </div>
+      <div class="modal-body">
+        <!-- Marcadors  cargados dinamicamente-->
+        <table id="tablaElementos" class="table table-striped table-hover">
+          <!--<tr>
+              <th>Nombre del bache</th>
+              <th>Descripcion</th>
+              <th>Latitud</th>
+              <th>Longitud</th>
+          </tr>-->
+        </table>
+        <!--Backup -->
+        <!--<table id="tablaElementos" class="table table-striped table-hover"></table>-->
+      </div>
+      <div class="modal-footer">
+        <button id="cancelarExportacion" type="button" class="btn btn-default" data-dismiss="modal">Cancelar exportacion</button>  
+        <button id="guardarJSON" type="button" class="btn btn-primary" >Exportar marcadores</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+    <div id="map_canvas" style="width:100%; height:100%"></div>    
   </body>
 </html>

@@ -3,9 +3,10 @@ echo $_SERVER["QUERY_STRING"];
 if (isset($_POST["action"])) { 
   $nombre = $_POST['nombre']; 
 
-  $dbconection = pg_connect('host=localhost dbname=universidad user=postgres password=guillermo') or die('No se ha podido conectar: ' . pg_last_error());
+  $dbconection = pg_connect('host=localhost dbname=universidad user=postgres password=rodrigoh') or die('No se ha podido conectar: ' . pg_last_error());
 
-  $query = "INSERT INTO baches (nombre, descripcion, latitud, longitud)
+  // $query = "INSERT INTO baches (nombre, descripcion, latitud, longitud)
+  $query = "INSERT INTO ".'"Baches"'."(nombre, descripcion, latitud, longitud)
                                 VALUES ('".$_POST["nombre"]."', '".$_POST["descripcion"]."', ".$_POST["latitud"].", ".$_POST["longitud"].")";
   $result = pg_query($query) or die('La consulta falló: ' . pg_last_error()); 
   if ($result) { 
@@ -22,12 +23,12 @@ if (isset($_POST["action"])) {
 if (isset($_SERVER["QUERY_STRING"])) { 
   $nombre = $_GET["nombre"];
 
-  $dbconection = pg_connect('host=localhost dbname=universidad user=postgres password=guillermo') or die('No se ha podido conectar: ' . pg_last_error());
+  $dbconection = pg_connect('host=localhost dbname=universidad user=postgres password=rodrigoh') or die('No se ha podido conectar: ' . pg_last_error());
 
   //Falta controlar que el bache no se encuentre en la bd.
 
-  $query = 'SELECT nombre FROM baches ';
-  $query = "INSERT INTO baches (nombre, descripcion, latitud, longitud)
+  $query = "SELECT nombre FROM". '"Baches"';
+  $query = "INSERT INTO ".'"Baches"'."(nombre, descripcion, latitud, longitud)
                                 VALUES ('".$_GET["nombre"]."', '".$_GET["descripcion"]."', ".$_GET["latitud"].", ".$_GET["longitud"].")";
   $result = pg_query($query) or die('La consulta falló: ' . pg_last_error()); 
 

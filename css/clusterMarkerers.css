@@ -1,0 +1,32 @@
+.cluster-1 {
+	background: url(../imagenes/concentracion_mayor.png);
+	background-size:66px 65px;
+	background-repeat:no-repeat;
+	height: 66px;
+	width: 65px;
+	border: 1px;
+	font-size: 10px;
+	padding-top: 8px;
+
+}
+.cluster-2 {
+	background: url(../imagenes/concentracion_media.png);
+	background-size:56px 55px;
+	background-repeat:no-repeat;
+	height: 56px;
+	width: 55px;
+	border: 1px;	
+	font-size:2em;
+	padding-top: 5px;
+	padding-left: 7px;
+}
+.cluster-3 {
+	background: url(../imagenes/concentracion_menor.png);
+	background-size:47px 46px;
+	background-repeat:no-repeat;
+	height: 47px;
+	width: 46px;
+	border: 1px;
+	font-size:2em;
+	padding-top: 5px;
+}

@@ -1,0 +1,10 @@
+.opcionesMenu {
+	background-color: #FFFFFF;
+	border-width: 1px;
+	border-style:solid;
+	border-color:#0000ff;
+	font-size: 1.5em;
+	font-style: bold;
+	width:100px;
+	height: 27px;
+}
