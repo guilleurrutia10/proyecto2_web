@@ -13,14 +13,14 @@
 	 	$fechaRandom=microtime(true);	
 		$datosArchivo="[";
 		for ($i=0; $i < count($objetosDatos); $i++) { 
-			$firephp->log('Objeto['.$i.']'.'='.$objetosDatos[$i]["nombre"]);
-			$nombre=$objetosDatos[$i]["nombre"];
-			$descripcion=$objetosDatos[$i]["descripcion"];
+			//$firephp->log('Objeto['.$i.']'.'='.$objetosDatos[$i]["nombre"]);
+			// $nombre=$objetosDatos[$i]["nombre"];
+			// $descripcion=$objetosDatos[$i]["descripcion"];
 			$latitud=$objetosDatos[$i]["latitud"];
 			$longitud=$objetosDatos[$i]["longitud"];
 			$direccion=$objetosDatos[$i]["direccion"];
 		 	$firephp->log('La direccion leida en el server es:'. strval($direccion));
-			$datos = '{ "nombre":'.$nombre.', "descripcion" :'.$descripcion.', "latitud": '.$latitud.', "longitud":'.$longitud.', "direccion":'. strval($direccion).'}';
+			$datos = '{ "latitud": '.$latitud.', "longitud":'.$longitud.', "direccion":'. strval($direccion).'}';
 			//$datos = '{ "nombre":'.$nombre.', "descripcion" :'.$descripcion.', "latitud": '.$latitud.', "longitud":'.$longitud.'}';
 			$datosArchivo.=$datos;
 		}
