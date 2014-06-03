@@ -1,8 +1,8 @@
 <?php
 if(isset($_SERVER["QUERY_STRING"])) { 
   $baches = array();
-  $dbconection = pg_connect('host=localhost dbname=universidad user=postgres password=rodrigoh') or die('No se ha podido conectar: ' . pg_last_error());
-  $query = 'SELECT * FROM'. '"Baches"';
+  $dbconection = pg_connect('host=localhost dbname=basebaches  user=adminpepe password=adminpepe') or die('No se ha podido conectar: ' . pg_last_error());
+  $query = 'SELECT * FROM'. 'baches';
   $result = pg_query($query) or die('La consulta falló: ' . pg_last_error()); 
   if ($result) { 
     while ($line = pg_fetch_array($result, null, PGSQL_ASSOC)) {

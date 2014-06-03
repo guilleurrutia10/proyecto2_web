@@ -2,15 +2,14 @@
 		//TODO BORRAR ESTO!! Solo para propositos de debugging!
 		require_once('FirePHPCore/FirePHP.class.php');
 		ob_start();
-		$firephp = FirePHP::getInstance(true);
-		
+		$firephp = FirePHP::getInstance(true);		
 		$nombre=$_GET['nombreBache'];	
 		//$id=$_GET['idBache'];	
 		// $latitud=$_GET['latitud'];	
 		// $longitud=$_GET['longitud'];	
 		$firephp->log("parametros recibidos por GET--> Latitud=".$latitud."; longitud=".$longitud);
-		$dbconection = pg_connect('host=localhost dbname=universidad user=postgres password=rodrigoh') or die('No se ha podido conectar: ' . pg_last_error());
-		$query ='DELETE FROM "Baches" WHERE  nombre='."'".$nombre."'";
+		$dbconection = pg_connect('host=localhost dbname=basebaches user=adminpepe password=adminpepe') or die('No se ha podido conectar: ' . pg_last_error());
+		$query ='DELETE FROM baches WHERE  nombre='."'".$nombre."'";
 		$firephp->log("La queryString armada es=".$query);
 
 		//BACKUPS DE OTRAS QUERYS DE PHP
