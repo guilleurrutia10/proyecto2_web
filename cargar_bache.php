@@ -1,9 +1,9 @@
 <?php
 echo $_SERVER["QUERY_STRING"];
-    // require_once('FirePHPCore/FirePHP.class.php');
-    // ob_start();
-    // $firephp = FirePHP::getInstance(true);    
-    // $firephp->log("El query sting recibido es:".$_SERVER["QUERY_STRING"]);
+  require_once('FirePHPCore/FirePHP.class.php');
+  ob_start();
+  $firephp = FirePHP::getInstance(true);    
+  $firephp->log("El query sting recibido es:".$_SERVER["QUERY_STRING"]);
 
   if (isset($_POST["action"])) { 
   $nombre = $_POST['nombre']; 
@@ -11,9 +11,11 @@ echo $_SERVER["QUERY_STRING"];
   $dbconection = pg_connect('host=localhost dbname=basebaches user=adminpepe password=adminpepe') or die('No se ha podido conectar: ' . pg_last_error());
 
 
-$query = "INSERT INTO ".'baches'."(descripcion, latitud, longitud)
+  $query = "INSERT INTO ".'baches'."(descripcion, latitud, longitud)
                                 VALUES ( '".$_POST["descripcion"]."', ".$_POST["latitud"].", ".$_POST["longitud"].")";
 
+
+     
   // $query = "INSERT INTO baches (nombre, descripcion, latitud, longitud)
   // $query = "INSERT INTO ".'baches'."(nombre, descripcion, latitud, longitud)
   //                               VALUES ('".$_POST["nombre"]."', '".$_POST["descripcion"]."', ".$_POST["latitud"].", ".$_POST["longitud"].")";
@@ -36,11 +38,12 @@ if (isset($_SERVER["QUERY_STRING"])) {
   $dbconection = pg_connect('host=localhost dbname=basebaches user=adminpepe password=adminpepe') or die('No se ha podido conectar: ' . pg_last_error());
 
   //Falta controlar que el bache no se encuentre en la bd.
-
   //$query = "SELECT nombre FROM".'baches';
   //$query = "INSERT INTO ".'baches'."( descripcion, latitud, longitud)
   //                              VALUES ( '".$_GET["descripcion"]."', ".$_GET["latitud"].", ".$_GET["longitud"].")";
   $query = "SELECT id FROM criticidad WHERE valor='".$_GET["criticidad"]."'";
+  $firephp->log("La query armada en criticidad es: ".$query);
+
   $result = pg_query($query) or die('La consulta falló: ' . pg_last_error());
   if(!$result)
   {
@@ -52,6 +55,10 @@ if (isset($_SERVER["QUERY_STRING"])) {
 
   $calle=$_GET["calle"];
   $altura=$_GET["altura"];
+
+  $firephp->log("La calle= ".$calle ."; altura=".$altura."id_criticidad=".$id_criticidad);
+
+
   //$query = "SELECT id FROM calle WHERE '$calle'=nombre";
   $query = "INSERT INTO calle (nombre) SELECT '$calle' where NOT EXISTS (SELECT id FROM calle WHERE '$calle'=nombre)";
   //$query = "INSERT INTO calle (nombre) SELECT '$calle' NOT EXISTS (SELECT nombre FROM calle WHERE '$calle'=nombre)";
@@ -66,11 +73,13 @@ if (isset($_SERVER["QUERY_STRING"])) {
   //$result = pg_query($query) or die('La consulta falló: ' . pg_last_error());
   $array = pg_fetch_array($result, null,PGSQL_ASSOC);
   $id_calle = $array["id"];
-  echo "$result and $id_calle";
+  $firephp->log("El resultado despues de obtener la calle como array es: ".$array." y id_calle=".$id_calle);
 
   $query = "INSERT INTO ".'baches'."( latitud, longitud, altura, id_criticidad, id_calle)
                                 VALUES ( ".$_GET["latitud"].", ".$_GET["longitud"].", ".$_GET["altura"].", $id_criticidad, $id_calle)";
   $result = pg_query($query) or die('La consulta falló: ' . pg_last_error()); 
+  
+  $firephp->log("La query final para insertar el bache fue: ".$query);
 
   //echo "\n".json_encode(array('latitud' =>$_GET['latitud'], 'descripcion' =>$_GET['descripcion'],'longitud' =>$_GET['longitud'], 'nombre' =>$_GET['nombre']));  //Liberando el conjunto de los resultados
   pg_free_result($result);
@@ -78,6 +87,7 @@ if (isset($_SERVER["QUERY_STRING"])) {
   pg_close($dbconection);
 }
 else
-	echo "No hay POST!";
+  $firephp->log("No Hay POST!");
+	//echo "No hay POST!";
 
 ?>
