@@ -103,7 +103,8 @@ function exportarBaches(){
 
 var geocoder;
 var map;
-var marcadores=[];
+//var marcadores=[];
+var marcadores={};
 var marcadorSeleccionado;
 
 //referencia al cluster;
@@ -642,36 +643,28 @@ function obtenerBaches () {
   // fire off the request to localhost/my_examples/obtener_bache.php
   $.get( "obtener_bache.php", function( data ) {
     var lista_marcadores = JSON.parse(data);
-    //Añadido Rodrigo, se añaden los marcadores traidos desde el servidor a la coleccion
-    // "marcadores"
-    marcadores.push(lista_marcadores);
-    //Se llama al metodo para inicializar el cluster
-    //inicializarClusters(lista_marcadores);
-
-    //alert(lista_marcadores);
     lista_marcadores.forEach(agregarMarcadores);
   });
 
-  // $.get( "/my_examples/obtener_bache.php", function( data ) {
-  //   var lista_marcadores = JSON.parse(data);
-  //   //alert(lista_marcadores);
-  //   lista_marcadores.forEach(agregarMarcadores);
-  // });
 }
 
 //Agregar marcadores del servidor
 function agregarMarcadores (marcador) { 
   var claves = [];
-  marcadores.forEach(function (mark, key) {
+  for (var key in marcadores)
+  {
     claves.push(key);
-  });
+  }
+  // marcadores.forEach(function (mark, key) {
+  //   claves.push(key);
+  // });
   //Verificamos si ya existe el marcador obtenido de la bd en la lista
   //que mantiene el cliente se sus marcadores.
-  var result = $.inArray(parseInt(marcador.id), claves);
+  var result = $.inArray(marcador.id, claves);
+  //var result = $.inArray(parseInt(marcador.id), claves);
   if (result>=0)
     return;
 
-  //debugger;
   $('#map_canvas').gmap3({
     marker: {
       latLng: [marcador.latitud, marcador.longitud],
@@ -683,10 +676,8 @@ function agregarMarcadores (marcador) {
         click: function (marker, event, context) {
           marcadorSeleccionado = marker;
           mostrarModalMarcador();
-          marcadores[marcador.id] = marker;
         },
         rightclick:function(marker,event,context){
-          debugger;
           var m= $("#map_canvas").gmap3("get");
           //Se obtiene la posicion del mapa y se reaiza una transormacion por medio del metodo
           //fromLatLngToPoint() que reotrna un punto con las posiciones X e Y actuales del cursor en pixeles
@@ -703,22 +694,7 @@ function agregarMarcadores (marcador) {
       cluster: mycluster
     }
   });
-  // var latLng = new google.maps.LatLng(marcador.latitud, marcador.longitud);
-  // var marker = new google.maps.Marker({
-  //      position: latLng,
-  //      map: map,
-  //      title: marcador.nombre
-  //  });
-  // var infowindow = new google.maps.InfoWindow({
-  //       content: marcador.nombre
-  //   });
-  // google.maps.event.addListener(marker, 'click', function () {
-  //   marcadorSeleccionado = marker;
-  //   mostrarModalMarcador();
-  // });
-  // google.maps.event.addListener(marker, 'rightclick', function() {
-  //     infowindow.open(map,marker);
-  //     });
+  marcadores[marcador.id] = marcador;
 }
 
 var alertHtml =''+ 
