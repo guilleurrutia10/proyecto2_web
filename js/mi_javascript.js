@@ -169,12 +169,14 @@ function reestablecerMenuExport(){
 
 //Funcion utilizada para mostrar el modal y la tabla con los elementos
 function mostrarDialogoExportMark(marcadoresAExportar){
+    debugger;
     //Se cargan los marcadores en el Modal
     $('#modalRodrigo').modal('show');
     //Se vacia la tabla con los elementos anteriores
     $("#tablaElementos").empty();
 
-    var encabezado='<tr>'+'<th>Nombre de bache</th>'+'<th>Descripcion</th>'+'<th>Latitud</th>'+'<th> Longitud</th>'+'<th>Calle</th>'+'</tr>';
+    //var encabezado='<tr>'+'<th>Nombre de bache</th>'+'<th>Descripcion</th>'+'<th>Latitud</th>'+'<th> Longitud</th>'+'<th>Calle</th>'+'</tr>';
+    var encabezado='<tr>'+'<th>Latitud</th>'+'<th> Longitud</th>'+'<th>Calle</th>'+'</tr>';
     $("#tablaElementos").append($(encabezado));
 
     //Se utiliza para almacenar las direcciones correspondientes a los marcadores seleccionados
@@ -194,7 +196,8 @@ function mostrarDialogoExportMark(marcadoresAExportar){
       var latlng = new google.maps.LatLng(lat, lng);
       var geocoder = new google.maps.Geocoder();
       //Se añade a la tabla el icono giratorio  
-      filaCarga='<tr><td></td><td></td><td><center><i id="ic_carga_'+indiceMarkers+'" class="fa fa-spinner fa-spin"></i></center></td><td></td><td></td><td></td></tr>';
+      //filaCarga='<tr><td></td><td></td><td><center><i id="ic_carga_'+indiceMarkers+'" class="fa fa-spinner fa-spin"></i></center></td><td></td><td></td><td></td></tr>';
+      filaCarga='<tr><td></td><td><center><i id="ic_carga_'+indiceMarkers+'" class="fa fa-spinner fa-spin"></i></center></td><td></td><td></td><td></td></tr>';
       $("#tablaElementos").append(filaCarga);
       indiceMarkers=indiceMarkers- 1;
       geocoder.geocode({'latLng': latlng}, function(results, status) {
@@ -205,17 +208,20 @@ function mostrarDialogoExportMark(marcadoresAExportar){
           $($("#tablaElementos").find(a1)).parents("tr").remove();
           if (status == google.maps.GeocoderStatus.OK) {
             if (results[0]) {
-              var fila='<tr>'+'<td>'+ $(elem).attr("nombre") +'</td>'+'<td>'+ $(elem).attr("descripcion") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+ '<td>'+ results[0].formatted_address+'</td>'+'</tr>';
+              // var fila='<tr>'+'<td>'+ $(elem).attr("nombre") +'</td>'+'<td>'+ $(elem).attr("descripcion") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+ '<td>'+ results[0].formatted_address+'</td>'+'</tr>';
+              var fila='<tr>'+'<td>'+ $(elem).attr("latitud") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+ '<td>'+ results[0].formatted_address+'</td>'+'</tr>';
                $("#tablaElementos").append($(fila));
                direcciones[i]=results[0].formatted_address;
             } else {
-              var fila='<tr>'+'<td>'+ $(elem).attr("nombre") +'</td>'+'<td>'+ $(elem).attr("descripcion") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+ '<td>'+ "Direccion no disponible"+'</td>'+'</tr>';
+             // var fila='<tr>'+'<td>'+ $(elem).attr("nombre") +'</td>'+'<td>'+ $(elem).attr("descripcion") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+ '<td>'+ "Direccion no disponible"+'</td>'+'</tr>';
+              var fila='<tr>'+'<td>'+ $(elem).attr("latitud") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+ '<td>'+ "Direccion no disponible"+'</td>'+'</tr>';
               $("#tablaElementos").append($(fila));              
               direcciones[i]="Direccion no disponible";
               //  alert('No se encontraron resultados para la direccion');
             }
           } else {            
-            var fila='<tr>'+'<td>'+ $(elem).attr("nombre") +'</td>'+'<td>'+ $(elem).attr("descripcion") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+ '<td>'+ "Direccion no disponible"+'</td>'+'</tr>';
+           // var fila='<tr>'+'<td>'+ $(elem).attr("nombre") +'</td>'+'<td>'+ $(elem).attr("descripcion") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+ '<td>'+ "Direccion no disponible"+'</td>'+'</tr>';
+           var fila='<tr>'+'<td>'+ $(elem).attr("latitud") +'</td>'+'<td>'+ $(elem).attr("latitud") +'</td>'+ '<td>'+ "Direccion no disponible"+'</td>'+'</tr>';
             $("#tablaElementos").append($(fila));
             direcciones[i]="Direccion no disponible";
             //alert('El Geocoder fallo debeido al error: ' + status);
@@ -231,7 +237,8 @@ function mostrarDialogoExportMark(marcadoresAExportar){
         //Se crea el objeto JSON para uno de los marcadores seleccionados
         var objetoJSON=[];
         $.each(marcadoresAExportar,function(i,elem){
-          objetoJSON[i]= { "nombre": $(elem).attr("nombre"), "descripcion" : $(elem).attr("descripcion"), "latitud" : $(elem).attr("latitud"), "longitud" :$(elem).attr("longitud") ,"direccion": direcciones[i] };
+          objetoJSON[i]= { "latitud" : $(elem).attr("latitud"), "longitud" :$(elem).attr("longitud") ,"direccion": direcciones[i] };
+          //objetoJSON[i]= { "nombre": $(elem).attr("nombre"), "descripcion" : $(elem).attr("descripcion"), "latitud" : $(elem).attr("latitud"), "longitud" :$(elem).attr("longitud") ,"direccion": direcciones[i] };
         });
         //Se emplea un plugin generateFile para genrar un iframe oculto e insertar un form
         //dentro de él, que a su vez esta insertado en el body de la pagina.
@@ -416,8 +423,8 @@ function initialize() {
       //Se obtienen los marcadores que estan contenidos en el area del rectangulo
       var limites=rectangle.getBounds();
       var marcadoresAExportar=[];
-      //TODO REVISAR ESTO: MARCADORES ¿ARREGLO DE ARREGLO?
-      $.each(marcadores[0],function(i, elem){
+      debugger;
+      $.each(marcadores,function(i, elem){
           //Se compara si cada uno de los marcadores esta dentro de los limites del elemento
           debugger;
           var posicion= new google.maps.LatLng($(elem).attr("latitud"),$(elem).attr("longitud"),true);
