@@ -129,8 +129,7 @@ $(function () {
 
   //mostrarModal(); 
   //Utilizando Geocomplete
-   $("#inputGeoComplete").geocomplete();  // Option 1: Call on element.
-   //$.fn.geocomplete("#inputGeoComplete"); // Option 2: Pass element as argument.
+  $("#inputGeoComplete").geocomplete();  // Option 1: Call on element.
 });
 
 
@@ -483,25 +482,20 @@ function initialize() {
 
 }
 
-
-
-//Agregar marcador del usuario
-function agregarMarcador (map, event) {
-  //Si se esta exportando un marcador se llama a al funcion de dibujar rectangulo
-  if(seEstaExportando){
-    dibujarRect(event);
-    return; 
-  }
-  alert(event.latLng);
+function add_marker (latLng) {
   $('#map_canvas').gmap3({
     marker: {
-      latLng: event.latLng,
+      latLng: latLng,
       events: {
         click: function (marker, event, context) {
           marcadorSeleccionado = marker;
           mostrarModalMarcador();
-          //AGREGADO RODIRGO!!!
-          //marcadores.push(marker);
+        },
+        mouseover: function (marker, event, context) {
+          tooltip.open();
+        },
+        mouseout: function () {
+          tooltip.remove();
         },
         rightclick:function(marker,event,context){
           var m= $("#map_canvas").gmap3("get");
@@ -524,15 +518,98 @@ function agregarMarcador (map, event) {
       },
       cluster: mycluster
     }
-   });
-  } //FIn de agregarMarcador
-  
-  // var infowindow = new google.maps.InfoWindow({
-  //       content: marker.title
-  //   });
-  // google.maps.event.addListener(marker, 'rightclick', function() {
-  //     infowindow.open(map,marker);
-  //     });
+  });
+}
+
+function obtenerDireccion (latLng, element) {
+  // Se obtiene la dirección a partir de la posición.
+  // El resultado es ingresado a al elemento que viene por parámetro.
+  $('#map_canvas').gmap3({
+    getaddress:{
+        latLng: latLng,
+        callback: function(results){
+          debugger;
+          $(element).val(results[0].formatted_address);
+        }
+    }
+  });
+}
+
+function agregarMarcador (map, event) {
+  //Si se esta exportando un marcador se llama a al funcion de dibujar rectangulo
+  if(seEstaExportando){
+    dibujarRect(event);
+    return; 
+  }
+  $('#my-modal .modal-content').load('document/formularito.html', function () {
+    $('#my-modal').find('#cancelarBache').on('click', function () {
+      $('#my-modal').modal('hide');
+      new PNotify({
+        title: 'Oh No!',
+        text: 'Se canceló la edición del bache.',
+        type: 'error'
+      });
+      return false;
+    });
+    $('#my-modal').find('.form-horizontal').submit(function (event) {
+      $('#my-modal').modal('hide');
+      return false;
+    });
+    obtenerDireccion(event.latLng, $('#my-modal').find('#direccion'));
+    $('#my-modal #latitud').val(event.latLng.k);
+    $('#my-modal #longitud').val(event.latLng.A);
+    $('#my-modal #aceptarBache').on('click', function () {
+      if (registrarBache($('#my-modal').get())==true)
+        add_marker(event.latLng);
+      $('#my-modal').modal('hide');
+      return false;
+    });
+    $('#my-modal').modal('show');
+  });
+}
+
+
+//Agregar marcador del usuario
+// function agregarMarcador (map, event) {
+//   //Si se esta exportando un marcador se llama a al funcion de dibujar rectangulo
+//   if(seEstaExportando){
+//     dibujarRect(event);
+//     return; 
+//   }
+//   alert(event.latLng);
+//   $('#map_canvas').gmap3({
+//     marker: {
+//       latLng: event.latLng,
+//       events: {
+//         click: function (marker, event, context) {
+//           marcadorSeleccionado = marker;
+//           mostrarModalMarcador();
+//           //AGREGADO RODIRGO!!!
+//           //marcadores.push(marker);
+//         },
+//         rightclick:function(marker,event,context){
+//           var m= $("#map_canvas").gmap3("get");
+//           //Se obtiene la posicion del mapa y se reaiza una transormacion por medio del metodo
+//           //fromLatLngToPoint() que reotrna un punto con las posiciones X e Y actuales del cursor en pixeles
+//           var pos= marker.getPosition();
+//           var point= m.getProjection().fromLatLngToPoint(pos);
+//           eventoBorrarBache = event;
+//           marcadorSeleccionado=marker;
+//           //Se busca idDelMarcador a eliminar dentro de la coleccion, comparando latitud y longitud del marcador seleccionado
+//           var p=marcadorSeleccionado.getPosition();
+//           $.each(marcadores,function(i,elem){
+//               debugger;
+//               if(elem.latitud==String(p.lat()) && elem.longitud==String(p.lng())){
+//                     idMarcadorAEliminar=elem.id;
+//               }
+//           });
+//           menuMapa.open(eventoBorrarBache,point.x,point.y);              
+//         }
+//       },
+//       cluster: mycluster
+//     }
+//    });
+// } //FIn de agregarMarcador
 
 
 function mostrarModal () {
@@ -551,7 +628,7 @@ function mostrarModal () {
 
 function mostrarModalMarcador() {
   //$('.modal-content').append(formularioString);
-  $('#my-modal').find('.modal-content').load('document/formulario_ingresar_bache.html', function () {
+  $('#my-modal').find('.modal-content').load('document/formularito.html', function () {
     $('#my-modal').find('#cancelarBache').on('click', function () {
       $('#my-modal').modal('hide');
     });
@@ -737,15 +814,15 @@ function registrarBache (dialog) {
   var datos = {};
   //Se obtiene del objeto Marcador
   //datos['nombre'] =   $('#my-modal').find('.modal-content').find('#titulo').val();
-  datos['descripcion'] =$('#my-modal').find('.modal-content').find('#descripcion').val();
-  datos['latitud']  = $('#my-modal').find('.modal-content').find('#latitud').val();
-  datos['longitud'] = $('#my-modal').find('.modal-content').find('#longitud').val();
+  //datos['descripcion'] =$('#my-modal').find('.modal-content').find('#descripcion').val();
+  datos['latitud']  = $(dialog).find('#latitud').val();
+  datos['longitud'] = $(dialog).find('#longitud').val();
+  datos['altura'] = $(dialog).find('#altura').val();
+  datos['criticidad'] = $(dialog).find('#criticidad').val();
+  var direccion = $(dialog).find('#direccion').val();
+  var dir_split = direccion.split(' ');
+  datos['calle'] = dir_split[0];
 
-
-  // datos['nombre'] = $(dialog).find('#titulo').val();
-  // datos['descripcion'] = $(dialog).find('#descripcion').val();
-  // datos['latitud'] = $(dialog).find('#latitud').val();
-  // datos['longitud'] = $(dialog).find('#longitud').val();
   debugger;
   var unArray = $.makeArray(datos);
   //Se envian los datos por ajax
@@ -759,7 +836,7 @@ function registrarBache (dialog) {
       alert('Se agregó el marcador exitosamente: ' + data);
     }
   }).done(function(data) {
-    $('#my-modal').modal('hide');
+    //$('#my-modal').modal('hide');
     // debugger;
     $('#small-modal').find('.modal-content').append(alertHtml);
     $('#small-modal').on('hidden.bs.modal', function () {
@@ -768,11 +845,12 @@ function registrarBache (dialog) {
     $('#small-modal').modal('show');
   }).fail(function() {
     alert( "error" );
+    return false;
   }).always(function() {
     //alert( "complete" );
   });
 
-  return false;
+  return true;
 }
 
 function Marcador () {

@@ -1,9 +1,9 @@
 <?php
 echo $_SERVER["QUERY_STRING"];
-    require_once('FirePHPCore/FirePHP.class.php');
-    ob_start();
-    $firephp = FirePHP::getInstance(true);    
-    $firephp->log("El query sting recibido es:".$_SERVER["QUERY_STRING"]);
+    // require_once('FirePHPCore/FirePHP.class.php');
+    // ob_start();
+    // $firephp = FirePHP::getInstance(true);    
+    // $firephp->log("El query sting recibido es:".$_SERVER["QUERY_STRING"]);
 
   if (isset($_POST["action"])) { 
   $nombre = $_POST['nombre']; 
@@ -31,15 +31,45 @@ $query = "INSERT INTO ".'baches'."(descripcion, latitud, longitud)
   pg_close($dbconection);
 }
 if (isset($_SERVER["QUERY_STRING"])) { 
-  $nombre = $_GET["nombre"];
+  //$nombre = $_GET["nombre"];
 
   $dbconection = pg_connect('host=localhost dbname=basebaches user=adminpepe password=adminpepe') or die('No se ha podido conectar: ' . pg_last_error());
 
   //Falta controlar que el bache no se encuentre en la bd.
 
   //$query = "SELECT nombre FROM".'baches';
-  $query = "INSERT INTO ".'baches'."( descripcion, latitud, longitud)
-                                VALUES ( '".$_GET["descripcion"]."', ".$_GET["latitud"].", ".$_GET["longitud"].")";
+  //$query = "INSERT INTO ".'baches'."( descripcion, latitud, longitud)
+  //                              VALUES ( '".$_GET["descripcion"]."', ".$_GET["latitud"].", ".$_GET["longitud"].")";
+  $query = "SELECT id FROM criticidad WHERE valor='".$_GET["criticidad"]."'";
+  $result = pg_query($query) or die('La consulta falló: ' . pg_last_error());
+  if(!$result)
+  {
+    echo "An error occurred.\n";
+    exit;
+  }
+  $array = pg_fetch_array($result, null,PGSQL_ASSOC);
+  $id_criticidad = $array["id"];
+
+  $calle=$_GET["calle"];
+  $altura=$_GET["altura"];
+  //$query = "SELECT id FROM calle WHERE '$calle'=nombre";
+  $query = "INSERT INTO calle (nombre) SELECT '$calle' where NOT EXISTS (SELECT id FROM calle WHERE '$calle'=nombre)";
+  //$query = "INSERT INTO calle (nombre) SELECT '$calle' NOT EXISTS (SELECT nombre FROM calle WHERE '$calle'=nombre)";
+  $result = pg_query($query) or die('La consulta falló: ' . pg_last_error());
+  $query = "SELECT id FROM calle WHERE '$calle'=nombre";
+  $result = pg_query($query) or die('La consulta falló: ' . pg_last_error());
+  if(!$result)
+  {
+    echo "An error occurred.\n";
+    exit;
+  }
+  //$result = pg_query($query) or die('La consulta falló: ' . pg_last_error());
+  $array = pg_fetch_array($result, null,PGSQL_ASSOC);
+  $id_calle = $array["id"];
+  echo "$result and $id_calle";
+
+  $query = "INSERT INTO ".'baches'."( latitud, longitud, altura, id_criticidad, id_calle)
+                                VALUES ( ".$_GET["latitud"].", ".$_GET["longitud"].", ".$_GET["altura"].", $id_criticidad, $id_calle)";
   $result = pg_query($query) or die('La consulta falló: ' . pg_last_error()); 
 
   //echo "\n".json_encode(array('latitud' =>$_GET['latitud'], 'descripcion' =>$_GET['descripcion'],'longitud' =>$_GET['longitud'], 'nombre' =>$_GET['nombre']));  //Liberando el conjunto de los resultados
