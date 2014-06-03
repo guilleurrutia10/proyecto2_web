@@ -60,7 +60,8 @@ function Gmap3Menu($div){
     $.each(items, function(i, item){
       $menu.append(create(item));
     });
-     
+
+	//RODRIGO, DESCOMENTAR ESTO!!     
     // manage auto-close menu on mouse hover / out
     $menu.hover(
       function(){clearTs();},
@@ -96,6 +97,7 @@ function Gmap3Menu($div){
       }
     });
      
+	//RODRIGO DESCOMENTAR ESTO!!
     // start auto-close
     initTs(5000);
   }

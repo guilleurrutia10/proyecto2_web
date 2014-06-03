@@ -319,11 +319,10 @@ function initialize() {
 
   //Se añade el menu para eliminar los baches del mapa
   menuMapa=new Gmap3Menu($("#map_canvas"));
-  menuMapa.add("Borrar bache", "opcionesMenu", 
+  menuMapa.add('<img src="imagenes/cancel_icono.png" width="19px" hspace="8" />Borrar bache', "opcionesMenu", 
   function(){
      borrarMarcador();
     //Se selecciona el marcador seleccioando
-    //alert("Se quiso borrar el bache! ");
     //Se cierra el menu
     menuMapa.close();
   });
@@ -334,7 +333,6 @@ function initialize() {
       data: 'Plaza Independencia',
       events:{
             rightclick:function(marker,event,context){
-              //debugger;
               var m= $("#map_canvas").gmap3("get");
               //Se obtiene la posicion del mapa y se reaiza una transormacion por medio del metodo
               //fromLatLngToPoint() que reotrna un punto con las posiciones X e Y actuales del cursor en pixeles
@@ -349,7 +347,7 @@ function initialize() {
                       idMarcadorAEliminar=elem.id;
                 }
               });
-              menuMapa.open(eventoBorrarBache,point.x,point.y);              
+              menuMapa.open(eventoBorrarBache,point.x,point.y);
             }
       },
 
@@ -506,7 +504,6 @@ function agregarMarcador (map, event) {
           //marcadores.push(marker);
         },
         rightclick:function(marker,event,context){
-          //debugger;
           var m= $("#map_canvas").gmap3("get");
           //Se obtiene la posicion del mapa y se reaiza una transormacion por medio del metodo
           //fromLatLngToPoint() que reotrna un punto con las posiciones X e Y actuales del cursor en pixeles
@@ -712,12 +709,12 @@ function agregarMarcadores (marcador) {
           marcadorSeleccionado=marker;
           //Se busca idDelMarcador a eliminar dentro de la coleccion, comparando latitud y longitud del marcador seleccionado
           //var p=marcadorSeleccionado.getPosition();
-              $.each(marcadores,function(i,elem){
-                debugger;
-                if(elem.latitud==(String(marcadorSeleccionado.getPosition().lat())).slice(0,17) && elem.longitud==(String(marcadorSeleccionado.getPosition().lng())).slice(0,17)){
-                      idMarcadorAEliminar=elem.id;
-                }
-              });
+          $.each(marcadores,function(i,elem){
+              debugger;
+              if(elem.latitud==String(marcadorSeleccionado.getPosition().lat()) && elem.longitud==String(marcadorSeleccionado.getPosition().lng())  ){
+                    idMarcadorAEliminar=elem.id;
+              }
+          });
           menuMapa.open(eventoBorrarBache,point.x,point.y);              
         }
       },
@@ -813,35 +810,26 @@ function borrarMarcador(){
   debugger; 
   marcadorSeleccionado.setMap(null);
   delete marcadores[idMarcadorAEliminar];
-  /*$.each(marcadores,function(i,marcador){
-    var index= marcadores.indexOf(marcadorSeleccionado);
-    if(index > -1){
-       marcadores.splice(index, 1);
-    }
-  });*/
-  //Se envia un ID existente- en la BD, REEMPLAZAR POR el ID de la variable tipo IdMarcador!
-  //var id=13;
-  // var pos=marcadorSeleccionado.getPosition();
-  // var latitudMark=String(pos.lat());
-  // var longitudMark=String(pos.lng());
-  //Se realiza una peticion AJAX al servidor para realizar la 
-  //var nomb=marcadorSeleccionado.getTitle();
-
-
-
-  // $.get( "borrarBache.php", {"latitud" : latitudMark, "longitud": longitudMark} ,function(data) {
-  //$.get( "borrarBache.php", {"nombreBache":nomb} ,function(data) { 
   $.get( "borrarBache.php", {"idbache":idMarcadorAEliminar} ,function(data) { 
-      alert( "Se borro el bache de la BD");
+      //alert( "Se borro el bache de la BD");
+    $('#small-modal').find('.modal-content').append(alertHtml);
+        $('#small-modal').on('hidden.bs.modal', function () {
+           $('#small-modal').find('.alert').remove();
+       });
+    $('#small-modal').modal('show');
   });
-
-  //BACKUP de Version anterior de borrar marcador
-  //Se envia un ID existente- en la BD, REEMPLAZAR POR el ID de la variable tipo IdMarcador!
-  // var id=13;
-  // //Se realiza una peticion AJAX al servidor para realizar la 
-  // $.get( "borrarBache.php", {"idBache": id } ,function(data) {
-  //   alert( "Se borro el bache de la BD");
+  //Se actualiza la coleccion de los marcadores utilizados
+  //llamando a obtenerbaches.php
+  //marcadores=[];
+  //Se borran los marcadores cargados en el mapa
+  //  $('#map_canvas').gmap3({
+  //   clear: {
+  //     name:"marker"
+  //   }
   // });
-
+  // $.get( "obtener_bache.php", function( data ) {
+  //     var lista_marcadores = JSON.parse(data);
+  //     lista_marcadores.forEach(agregarMarcadores);
+  // });
 
 }
