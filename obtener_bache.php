@@ -1,13 +1,18 @@
 <?php
+    //TODO BORRAR PARTE DE FIREPHP
+    require_once('FirePHPCore/FirePHP.class.php');
+    ob_start();
+    $firephp = FirePHP::getInstance(true);    
 if(isset($_SERVER["QUERY_STRING"])) { 
   $baches = array();
   $dbconection = pg_connect('host=localhost dbname=basebaches  user=adminpepe password=adminpepe') or die('No se ha podido conectar: ' . pg_last_error());
-  $query = 'SELECT * FROM'. 'baches';
+  $query = 'SELECT * FROM '. 'baches';
   $result = pg_query($query) or die('La consulta falló: ' . pg_last_error()); 
   if ($result) { 
     while ($line = pg_fetch_array($result, null, PGSQL_ASSOC)) {
       # code...
       array_push($baches, $line);
+     // $firephp->log("Se ha agregado la linea: ".$line);
     }
     echo json_encode($baches);
   } else { 

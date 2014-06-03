@@ -1,16 +1,26 @@
 <?php
 echo $_SERVER["QUERY_STRING"];
-if (isset($_POST["action"])) { 
+    require_once('FirePHPCore/FirePHP.class.php');
+    ob_start();
+    $firephp = FirePHP::getInstance(true);    
+    $firephp->log("El query sting recibido es:".$_SERVER["QUERY_STRING"]);
+
+  if (isset($_POST["action"])) { 
   $nombre = $_POST['nombre']; 
 
-  $dbconection = pg_connect('host=localhost dbname=universidad user=postgres password=rodrigoh') or die('No se ha podido conectar: ' . pg_last_error());
+  $dbconection = pg_connect('host=localhost dbname=basebaches user=adminpepe password=adminpepe') or die('No se ha podido conectar: ' . pg_last_error());
+
+
+$query = "INSERT INTO ".'baches'."(descripcion, latitud, longitud)
+                                VALUES ( '".$_POST["descripcion"]."', ".$_POST["latitud"].", ".$_POST["longitud"].")";
 
   // $query = "INSERT INTO baches (nombre, descripcion, latitud, longitud)
-  $query = "INSERT INTO ".'"Baches"'."(nombre, descripcion, latitud, longitud)
-                                VALUES ('".$_POST["nombre"]."', '".$_POST["descripcion"]."', ".$_POST["latitud"].", ".$_POST["longitud"].")";
+  // $query = "INSERT INTO ".'baches'."(nombre, descripcion, latitud, longitud)
+  //                               VALUES ('".$_POST["nombre"]."', '".$_POST["descripcion"]."', ".$_POST["latitud"].", ".$_POST["longitud"].")";
   $result = pg_query($query) or die('La consulta falló: ' . pg_last_error()); 
   if ($result) { 
-    success(array('latitud' =>$_POST['latitud'], 'descripcion' =>$_POST['descripcion'],'longitud' =>$_POST['longitud'], 'nombre' =>$_POST['nombre'])); 
+    // success(array('latitud' =>$_POST['latitud'], 'descripcion' =>$_POST['descripcion'],'longitud' =>$_POST['longitud'], 'nombre' =>$_POST['nombre'])); 
+    success(array('latitud' =>$_POST['latitud'], 'descripcion' =>$_POST['descripcion'],'longitud' =>$_POST['longitud'])); 
   } else { 
     fail('Failed to add point.'); 
   }
@@ -23,13 +33,13 @@ if (isset($_POST["action"])) {
 if (isset($_SERVER["QUERY_STRING"])) { 
   $nombre = $_GET["nombre"];
 
-  $dbconection = pg_connect('host=localhost dbname=universidad user=postgres password=rodrigoh') or die('No se ha podido conectar: ' . pg_last_error());
+  $dbconection = pg_connect('host=localhost dbname=basebaches user=adminpepe password=adminpepe') or die('No se ha podido conectar: ' . pg_last_error());
 
   //Falta controlar que el bache no se encuentre en la bd.
 
-  $query = "SELECT nombre FROM". '"Baches"';
-  $query = "INSERT INTO ".'"Baches"'."(nombre, descripcion, latitud, longitud)
-                                VALUES ('".$_GET["nombre"]."', '".$_GET["descripcion"]."', ".$_GET["latitud"].", ".$_GET["longitud"].")";
+  //$query = "SELECT nombre FROM".'baches';
+  $query = "INSERT INTO ".'baches'."( descripcion, latitud, longitud)
+                                VALUES ( '".$_GET["descripcion"]."', ".$_GET["latitud"].", ".$_GET["longitud"].")";
   $result = pg_query($query) or die('La consulta falló: ' . pg_last_error()); 
 
   //echo "\n".json_encode(array('latitud' =>$_GET['latitud'], 'descripcion' =>$_GET['descripcion'],'longitud' =>$_GET['longitud'], 'nombre' =>$_GET['nombre']));  //Liberando el conjunto de los resultados

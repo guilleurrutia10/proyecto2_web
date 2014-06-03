@@ -3,13 +3,13 @@
 		require_once('FirePHPCore/FirePHP.class.php');
 		ob_start();
 		$firephp = FirePHP::getInstance(true);		
-		$nombre=$_GET['nombreBache'];	
+		$idbache=$_GET['idbache'];	
 		//$id=$_GET['idBache'];	
 		// $latitud=$_GET['latitud'];	
 		// $longitud=$_GET['longitud'];	
 		$firephp->log("parametros recibidos por GET--> Latitud=".$latitud."; longitud=".$longitud);
 		$dbconection = pg_connect('host=localhost dbname=basebaches user=adminpepe password=adminpepe') or die('No se ha podido conectar: ' . pg_last_error());
-		$query ='DELETE FROM baches WHERE  nombre='."'".$nombre."'";
+		$query ='DELETE FROM baches WHERE  id='."'".$idbache."'";
 		$firephp->log("La queryString armada es=".$query);
 
 		//BACKUPS DE OTRAS QUERYS DE PHP

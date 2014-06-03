@@ -107,6 +107,10 @@ var map;
 var marcadores={};
 var marcadorSeleccionado;
 
+
+//Referencia al marcador que se eliminará cuando se raelice click derecho.
+var idMarcadorAEliminar;
+
 //referencia al cluster;
 var mycluster=null;
 
@@ -337,6 +341,14 @@ function initialize() {
               var pos= marker.getPosition();
               var point= m.getProjection().fromLatLngToPoint(pos);
               eventoBorrarBache = event;
+              marcadorSeleccionado=marker;
+             //Se busca idDelMarcador a eliminar dentro de la coleccion, comparando latitud y longitud del marcador seleccionado
+              var p=marcadorSeleccionado.getPosition();
+              $.each(marcadores,function(i,elem){
+                if(elem.latitud==String(p.lat()) && elem.longitud==String(p.lng())){
+                      idMarcadorAEliminar=elem.id;
+                }
+              });
               menuMapa.open(eventoBorrarBache,point.x,point.y);              
             }
       },
@@ -501,6 +513,15 @@ function agregarMarcador (map, event) {
           var pos= marker.getPosition();
           var point= m.getProjection().fromLatLngToPoint(pos);
           eventoBorrarBache = event;
+          marcadorSeleccionado=marker;
+          //Se busca idDelMarcador a eliminar dentro de la coleccion, comparando latitud y longitud del marcador seleccionado
+          var p=marcadorSeleccionado.getPosition();
+          $.each(marcadores,function(i,elem){
+              debugger;
+              if(elem.latitud==String(p.lat()) && elem.longitud==String(p.lng())){
+                    idMarcadorAEliminar=elem.id;
+              }
+          });
           menuMapa.open(eventoBorrarBache,point.x,point.y);              
         }
       },
@@ -642,6 +663,7 @@ function mostrarModalMarcador() {
 function obtenerBaches () {
   // fire off the request to localhost/my_examples/obtener_bache.php
   $.get( "obtener_bache.php", function( data ) {
+    debugger;
     var lista_marcadores = JSON.parse(data);
     lista_marcadores.forEach(agregarMarcadores);
   });
@@ -688,6 +710,14 @@ function agregarMarcadores (marcador) {
           marker.setTitle(marcador.nombre);
           //Se establece el marcador seleccioando que será eliminado
           marcadorSeleccionado=marker;
+          //Se busca idDelMarcador a eliminar dentro de la coleccion, comparando latitud y longitud del marcador seleccionado
+          //var p=marcadorSeleccionado.getPosition();
+              $.each(marcadores,function(i,elem){
+                debugger;
+                if(elem.latitud==(String(marcadorSeleccionado.getPosition().lat())).slice(0,17) && elem.longitud==(String(marcadorSeleccionado.getPosition().lng())).slice(0,17)){
+                      idMarcadorAEliminar=elem.id;
+                }
+              });
           menuMapa.open(eventoBorrarBache,point.x,point.y);              
         }
       },
@@ -709,10 +739,17 @@ function registrarBache (dialog) {
   //alert(marcadorSeleccionado.title + ' Long: ' + $(dialog).find('#longitud').val());
   var datos = {};
   //Se obtiene del objeto Marcador
-  datos['nombre'] = $(dialog).find('#titulo').val();
-  datos['descripcion'] = $(dialog).find('#descripcion').val();
-  datos['latitud'] = $(dialog).find('#latitud').val();
-  datos['longitud'] = $(dialog).find('#longitud').val();
+  //datos['nombre'] =   $('#my-modal').find('.modal-content').find('#titulo').val();
+  datos['descripcion'] =$('#my-modal').find('.modal-content').find('#descripcion').val();
+  datos['latitud']  = $('#my-modal').find('.modal-content').find('#latitud').val();
+  datos['longitud'] = $('#my-modal').find('.modal-content').find('#longitud').val();
+
+
+  // datos['nombre'] = $(dialog).find('#titulo').val();
+  // datos['descripcion'] = $(dialog).find('#descripcion').val();
+  // datos['latitud'] = $(dialog).find('#latitud').val();
+  // datos['longitud'] = $(dialog).find('#longitud').val();
+  debugger;
   var unArray = $.makeArray(datos);
   //Se envian los datos por ajax
   $.ajax({
@@ -775,21 +812,26 @@ function borrarMarcador(){
   //mantenida en el navegador
   debugger; 
   marcadorSeleccionado.setMap(null);
-  $.each(marcadores,function(i,marcador){
+  delete marcadores[idMarcadorAEliminar];
+  /*$.each(marcadores,function(i,marcador){
     var index= marcadores.indexOf(marcadorSeleccionado);
     if(index > -1){
        marcadores.splice(index, 1);
     }
-  });
+  });*/
   //Se envia un ID existente- en la BD, REEMPLAZAR POR el ID de la variable tipo IdMarcador!
   //var id=13;
-  var pos=marcadorSeleccionado.getPosition();
-  var latitudMark=String(pos.lat());
-  var longitudMark=String(pos.lng());
+  // var pos=marcadorSeleccionado.getPosition();
+  // var latitudMark=String(pos.lat());
+  // var longitudMark=String(pos.lng());
   //Se realiza una peticion AJAX al servidor para realizar la 
-  var nomb=marcadorSeleccionado.getTitle();
+  //var nomb=marcadorSeleccionado.getTitle();
+
+
+
   // $.get( "borrarBache.php", {"latitud" : latitudMark, "longitud": longitudMark} ,function(data) {
-  $.get( "borrarBache.php", {"nombreBache":nomb} ,function(data) { 
+  //$.get( "borrarBache.php", {"nombreBache":nomb} ,function(data) { 
+  $.get( "borrarBache.php", {"idbache":idMarcadorAEliminar} ,function(data) { 
       alert( "Se borro el bache de la BD");
   });
 
