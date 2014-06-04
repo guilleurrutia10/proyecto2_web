@@ -174,8 +174,8 @@ function onClickBotonBuscar(event, elem) {
         callback: function(results, status){
           debugger;
           if (status==google.maps.GeocoderStatus.OK){
-            var latitud = results[0].geometry.location.k;
-            var longitud = results[0].geometry.location.A;
+            var latitud = results[0].geometry.location.lat();
+            var longitud = results[0].geometry.location.lng();
             $('#map_canvas').gmap3({
               map: {
                 options:{
@@ -204,27 +204,6 @@ function onClickBotonBuscar(event, elem) {
   });
   return false;
 }
-
-var formularioString='<form id="add-point" method="post" onsubmit= "return registrarBache(this)">'+
-                        '<div class="form-mapa">'+
-                          '<label for="nombreBache">Nombre</label>'+
-                          '<input type="text" class="form-control" id="nombre" placeholder="Ingrese nombre del bache"/>'+
-
-                          '<label for="descripcion">Descripcion</label>'+
-                          '<input type="text" class="form-control" id="descripcion" placeholder="Ingrese descripcion"/>'+
-                          '<label for="latitud">Latitud</label>'+
-                          '<input type="text" class="form-control" id="latitud" placeholder="Ingrese latitud"/>'+
-
-                          '<label for="longitud">Longitud</label>'+
-                          '<input type="text" class="form-control" id="longitud" placeholder="Ingrese longitud"/>'+
-
-                          '<label for="calle">Dirección</label>'+
-                          '<input type="text" class="form-control" id="direccion" placeholder="Ingrese la dirección"/>'+
-                        '</div>'+
-                        '<button type="submit" class="btn btn-default">Enviar</button>'+
-                    '</form>';
-
-
 
 //Metodo utilizado para restablecer la opcion de exportar marcadores de la navbar
 function reestablecerMenuExport(){
@@ -448,7 +427,6 @@ function initialize() {
 
  //Se obtiene un mapa por medio de un direct GET!
   var m=$("#map_canvas").gmap3("get");
-  //debugger;
   drawingManager.setMap(m);
   //Se registra el listener para el evento de finalizacion de dibujado del rectangulo
   google.maps.event.addListener(drawingManager, 'rectanglecomplete', function(rectangle) {
@@ -495,7 +473,17 @@ function agregarMarcador_clcik(event) {
   // de la opción agregarMarcador. Baches->agregar.
   $('#my-modal .modal-content').load('document/formularito.html', function () {
     $('#my-modal').find('#direccion').on('blur', function (event) {
-      obtenerLatLng(this, $('#my-modal').get());
+      obtenerLatLng($(this).val(), function(results, status){
+          debugger;
+          if (status==google.maps.GeocoderStatus.OK){
+            var latitud = results[0].geometry.location.lat();
+            var longitud = results[0].geometry.location.lng();
+            $('#my-modal #latitud').val(latitud);
+            $('#my-modal #longitud').val(longitud);
+            $('#my-modal #latitud').attr({'readOnly':true});
+            $('#my-modal #longitud').attr({'readOnly':true});
+          }
+      });
     });
     //Utilizando Geocomplete en el input ingresar dirección.
     $('#my-modal').find('#direccion').geocomplete();
@@ -514,7 +502,6 @@ function agregarMarcador_clcik(event) {
     $('#my-modal').find('.form-horizontal').find('#aceptarBache').click(function (event) {
       // Se debería deja a registrar la responsabilidad de crear el marcador y
       // agregar el marcador al mapa.
-      //registrarBache($('#my-modal').get());
       //crearMarcador();
       debugger;
       if (registrarBache($('#my-modal').get())==true)
@@ -532,22 +519,14 @@ function agregarMarcador_clcik(event) {
   $('#my-modal').modal('show');
 }
 
-function obtenerLatLng (input, modal) {
-  var dir = $(input).val();
+function obtenerLatLng (address, func) {
+  // func: función que se ejecutará como respuesta al pedido
+  // AJAX de Geocoding. 
+  // Prototipo: funcion (resultado, status)
   $('#map_canvas').gmap3({
     getlatlng:{
-        address: dir,
-        callback: function(results, status){
-          debugger;
-          if (status==google.maps.GeocoderStatus.OK){
-            var latitud = results[0].geometry.location.k;
-            var longitud = results[0].geometry.location.A;
-            $(modal).find('#latitud').val(latitud);
-            $(modal).find('#longitud').val(longitud);
-            $(modal).find('#latitud').attr({'readOnly':true});
-            $(modal).find('#longitud').attr({'readOnly':true});
-          }
-        }
+        address: address,
+        callback: func
     }
   });
 }
@@ -623,7 +602,6 @@ function agregarMarcador (map, event) {
       $('#my-modal').modal('hide');
       return false;
     });
-    //obtenerDireccion(event.latLng, $('#my-modal').find('#direccion'));
     obtenerDireccion(event.latLng, function (results, status) {
       // La función se ejecuta como respuesta al pedido por AJAX.
       if (status==google.maps.GeocoderStatus.OK){
@@ -642,50 +620,6 @@ function agregarMarcador (map, event) {
     $('#my-modal').modal('show');
   });
 }
-
-
-//Agregar marcador del usuario
-// function agregarMarcador (map, event) {
-//   //Si se esta exportando un marcador se llama a al funcion de dibujar rectangulo
-//   if(seEstaExportando){
-//     dibujarRect(event);
-//     return; 
-//   }
-//   alert(event.latLng);
-//   $('#map_canvas').gmap3({
-//     marker: {
-//       latLng: event.latLng,
-//       events: {
-//         click: function (marker, event, context) {
-//           marcadorSeleccionado = marker;
-//           mostrarModalMarcador();
-//           //AGREGADO RODIRGO!!!
-//           //marcadores.push(marker);
-//         },
-//         rightclick:function(marker,event,context){
-//           var m= $("#map_canvas").gmap3("get");
-//           //Se obtiene la posicion del mapa y se reaiza una transormacion por medio del metodo
-//           //fromLatLngToPoint() que reotrna un punto con las posiciones X e Y actuales del cursor en pixeles
-//           var pos= marker.getPosition();
-//           var point= m.getProjection().fromLatLngToPoint(pos);
-//           eventoBorrarBache = event;
-//           marcadorSeleccionado=marker;
-//           //Se busca idDelMarcador a eliminar dentro de la coleccion, comparando latitud y longitud del marcador seleccionado
-//           var p=marcadorSeleccionado.getPosition();
-//           $.each(marcadores,function(i,elem){
-//               debugger;
-//               if(elem.latitud==String(p.lat()) && elem.longitud==String(p.lng())){
-//                     idMarcadorAEliminar=elem.id;
-//               }
-//           });
-//           menuMapa.open(eventoBorrarBache,point.x,point.y);              
-//         }
-//       },
-//       cluster: mycluster
-//     }
-//    });
-// } //FIn de agregarMarcador
-
 
 function mostrarModal () {
   $('#small-modal').find('.modal-content').append(alertHtml);
@@ -710,7 +644,6 @@ function mostrarModalMarcador() {
       var latLng = results[0].geometry.location;
       var longitude = results[0].geometry.location.lng;
       var address = results[0].formatted_address;
-     // debugger;
 
      //AÑADIDO PARA PROPOSITOS DE DEBUG
      $('#my-modal').find('.modal-content').find('#titulo').val("Bache de condarco 1100");
@@ -735,73 +668,9 @@ function mostrarModalMarcador() {
       alert('result');
     }
   });
-  // $('#my-modal').on('hidden.bs.modal',function (e) {
-  //   $('#my-modal').find('.form-horizontal').remove();
-  // });
+
 }
 
-
-//Variable empleada para mantener la referencia  a los marcadores
-// var clusterMarkerer;
-// function inicializarClusters(listadoMarcadores){
-//   debugger;
-//   $.gmap3({
-//   action: 'addMarkers',
-//   radius: 100,
-//   markers: listadoMarcadores,
-//   clusters: {
-//     10: {
-//       content: '<div class="cluster-1">CLUSTER_COUNT</div>',
-//       width: 56,
-//       height: 55
-//     }
-//   },
-//     callback: function(cl) {
-//       clusterMarkerer = cl
-//     }
-//   });
-
- //   var marcadoresList= $("#map_canvas").gmap3({ get : { name:"marker" , callback: function(cluster){
- //      cluster;
- //   }
- // }});
-   //Crear lista de marcadores en JSON
-   // var listadoMarcadoresJSON=[];
-
-   // $("#map_canvas").gmap3({
-   //  marker: {
-   //    values: marcadoresList,
-   //    cluster:{
-   //      radius:40,
-   //      // This style will be used for clusters with more than 0 markers
-   //      0: {
-   //        content: "<div class='cluster cluster-1'>CLUSTER_COUNT</div>",
-   //        width: 53,
-   //        height: 52
-   //      },
-   //      // This style will be used for clusters with more than 20 markers
-   //      20: {
-   //        content: "<div class='cluster cluster-2'>CLUSTER_COUNT</div>",
-   //        width: 56,
-   //        height: 55
-   //      },
-   //      // This style will be used for clusters with more than 50 markers
-   //      50: {
-   //        content: "<div class='cluster cluster-3'>CLUSTER_COUNT</div>",
-   //        width: 66,
-   //        height: 65
-   //      }
-   //    }
-   //  }
-   // });
-
-
-   // console.log("Se inicializo correctamente el cluster con los marcadores!");
-   // debugger;
-    // var marker=[$(listadoMarcadores[0]).attr("latitud"),$(listadoMarcadores[0]).attr("latitud")];
-    // var mapGoogle=$("#map_canvas").gmap3({ get : "map"});
-    // clusterMarkerer= new MarkerClusterer(mapGoogle,marker);
-// }
 
 function obtenerBaches () {
   // fire off the request to localhost/my_examples/obtener_bache.php
