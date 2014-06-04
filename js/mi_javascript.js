@@ -113,6 +113,29 @@ var idMarcadorAEliminar;
 
 //referencia al cluster;
 var mycluster=null;
+// toolTipMarker initialize
+var tooltip = new PNotify({
+    title: "Marker",
+    text: "Haga click sobre el marcador para editarlo",
+    hide: false,
+    buttons: {
+    closer: false,
+    sticker: false
+    },
+    history: {
+    history: false
+    },
+    animate_speed: 100,
+    opacity: .9,
+    icon: "ui-icon ui-icon-comment",
+    // Setting stack to false causes PNotify to ignore this notice when positioning.
+    stack: false,
+    auto_display: false
+  });
+  // Remove the notice if the user mouses over it.
+  tooltip.get().mouseout(function() {
+    tooltip.remove();
+  });
 
 //Se registra el evento click de verBaches
 $(function () {
@@ -121,17 +144,66 @@ $(function () {
   $("#cancelarExportacion").click(reestablecerMenuExport);
   //Se detecta la ubicacion actual
   detectarUbicacionAct();
-
-
-  //TODO: Descomentar esto si no funciona
-  //$("#eliminarMarcador").click(borrarMarcador);
-
-
-  //mostrarModal(); 
   //Utilizando Geocomplete
   $("#inputGeoComplete").geocomplete();  // Option 1: Call on element.
+  // Se registra el evento click de agregarMarcador
+  $('#agregarMarcador').click(agregarMarcador_clcik);
+  // Se registra el evento hidden de my-modal
+  $('#my-modal').on('hidden.bs.modal',function (e) {
+    // Se elimina el contenido al ocultarse el mismo.
+    $(this).removeData('modal');
+  });
+  $('#botonBuscar').click(function (event) {
+    onClickBotonBuscar(event, $("#inputGeoComplete").get());
+  });
 });
 
+function onClickBotonBuscar(event, elem) {
+  $("#map_canvas").gmap3({
+    clear:{
+      name:"marker",
+      tag: ['centrado'],
+      all: true
+    }
+  });
+  var dir = $(elem).val();
+  debugger;
+  $('#map_canvas').gmap3({
+    getlatlng:{
+        address: dir,
+        callback: function(results, status){
+          debugger;
+          if (status==google.maps.GeocoderStatus.OK){
+            var latitud = results[0].geometry.location.k;
+            var longitud = results[0].geometry.location.A;
+            $('#map_canvas').gmap3({
+              map: {
+                options:{
+                  center: [latitud, longitud],
+                  zoom: 18 
+                }
+              },
+              marker:{
+                latLng: [latitud, longitud],
+                options:{
+                  icon: "imagenes/direction_down.png"
+                },
+                tag: ['centrado']
+              }
+            });
+          }else{
+            new PNotify({
+              title: 'Oh No!',
+              text: 'Error al centrar el mapa.',
+              type: 'error',
+              icon: "ui-icon ui-icon-comment"
+            });
+          }
+        }
+    }
+  });
+  return false;
+}
 
 var formularioString='<form id="add-point" method="post" onsubmit= "return registrarBache(this)">'+
                         '<div class="form-mapa">'+
@@ -250,37 +322,7 @@ function mostrarDialogoExportMark(marcadoresAExportar){
         e.preventDefault();
       }     
       });
-    }
-
-        // console.log("Datos enviados desde cliente: "+jQuery.param(JSON.stringify(objetoJSON)));
-        // $.ajax({
-        //     url: "guardarJSON.php",
-        //     context: document.body,
-        //     data: JSON.stringify(objetoJSON),
-        //      type: "POST"
-
-        //     // dataType:"text",
-        //     // contents: "application/octet-stream",
-        //     // dataType: "text",
-        //     // mimeType:"application/octet-stream",
-        //     // complete: function(jqxhr,estado){
-        //     //     if(estado== "success"){
-        //     //       //alert("Estado: "+estado+"jqxhr"+jqxhr.getAllResponseHeaders());
-        //     //       //jqxhr.overrideMimeType( "application/octet-stream; charset=x-user-defined" );
-        //     //     }
-        //     // }
-        // // }).done(function() {
-        //   //alert("obtenidos");
-        // });
-
-        // $("#guardarJSON").attr("formaction","guardarJSON.php");
-        // $.post("guardarJSON.php", JSON.stringify(objetoJSON),function(data){
-        //    // $(location).attr('href',"https://www.youtube.com");
-        //   //window.open("nombreUsr.txt");
-        // });
-    //});
-//}
-
+}
 
 //Cosas utilizadas para el menu contextual del mapa
 var menuMapa;
@@ -312,12 +354,6 @@ function initialize() {
       },
        events:{
         click: agregarMarcador
-        //BACKUP DEL CODIGO
-        //Se asocia el evento de click derecho para cargar el menu
-        //   rightclick:function(map, event){
-        //       eventoBorrarBache = event;
-        //       menuMapa.open(eventoBorrarBache);
-        // }
       }
    }
   });
@@ -334,7 +370,6 @@ function initialize() {
   });
   $('#map_canvas').gmap3({
     marker:{
-      //latLng: myLatlng,
       values: [myLatlng],
       data: 'Plaza Independencia',
       events:{
@@ -444,49 +479,77 @@ function initialize() {
           seEstaExportando=false;
       }
       rectangle.setMap(null);
-});
+  });
 
-  // var marker = new google.maps.Marker({
-  //     position: myLatlng,
-  //     map: map,
-  //     title: 'Plaza Independencia'
-  // });
-  // var infowindow = new google.maps.InfoWindow({
-  //       //content: 'La Bombonera'
-  //       content: marker.title
-  //   });
-  // google.maps.event.addListener(marker, 'rightclick', function() {
-  //     infowindow.open(map,marker);
-  //     });
   //Se inicializa el consultor direccion a latlng y latlong a direccion
   geocoder = new google.maps.Geocoder();
-
-  // google.maps.event.addListener(marker, 'click', function () {
-  //   // body...
-  //   marcadorSeleccionado = marker;
-  //   mostrarModalMarcador();
-  // });
-
-  // //Placing position 
-  // google.maps.event.addListener(map, 'click', function(event) {
-  //   agregarMarcador(event.latLng);
-  //   alert(event.latLng);
-  // });
 
   $("#inputGeoComplete").geocomplete({
     map: map
   });
-  // //Se añade el menu para eliminar los baches del mapa
-  // menuMapa=new Gmap3Menu($("#map_canvas"));
-  // menuMapa.add("Borrar bache", "opcionesMenu", 
-  // function(){
-  //   //Se selecciona el marcador seleccioando
-  //   alert("Se quiso borrar el bache! ");
-  //   menuMapa.close();
-  // });
 
+}
 
+function agregarMarcador_clcik(event) {
+  // Función que es llamada al hacer click sobre la opción agregarMarcador
+  // de la opción agregarMarcador. Baches->agregar.
+  $('#my-modal .modal-content').load('document/formularito.html', function () {
+    $('#my-modal').find('#direccion').on('blur', function (event) {
+      obtenerLatLng(this, $('#my-modal').get());
+    });
+    //Utilizando Geocomplete en el input ingresar dirección.
+    $('#my-modal').find('#direccion').geocomplete();
+    $('#my-modal').find('#direccion').geocomplete({
+      map: $('#map_canvas').gmap3('get')
+    });
+    $('#my-modal').find('#direccion').focus();
+    $('#my-modal').find('.form-horizontal').submit(function (event) {
+      $('#my-modal').modal('hide');
+      return false;
+    });
+    $('#my-modal').find('.form-horizontal').find('#cancelarBache').click(function (event) {
+      $('#my-modal').modal('hide');
+      return false;
+    });
+    $('#my-modal').find('.form-horizontal').find('#aceptarBache').click(function (event) {
+      // Se debería deja a registrar la responsabilidad de crear el marcador y
+      // agregar el marcador al mapa.
+      //registrarBache($('#my-modal').get());
+      //crearMarcador();
+      debugger;
+      if (registrarBache($('#my-modal').get())==true)
+      {
+        add_marker([
+            $('#my-modal').find('#latitud').val(),
+            $('#my-modal').find('#longitud').val()
+          ]);
+      }
+        
+      $('#my-modal').modal('hide');
+      return false;
+    });
+  });
+  $('#my-modal').modal('show');
+}
 
+function obtenerLatLng (input, modal) {
+  var dir = $(input).val();
+  $('#map_canvas').gmap3({
+    getlatlng:{
+        address: dir,
+        callback: function(results, status){
+          debugger;
+          if (status==google.maps.GeocoderStatus.OK){
+            var latitud = results[0].geometry.location.k;
+            var longitud = results[0].geometry.location.A;
+            $(modal).find('#latitud').val(latitud);
+            $(modal).find('#longitud').val(longitud);
+            $(modal).find('#latitud').attr({'readOnly':true});
+            $(modal).find('#longitud').attr({'readOnly':true});
+          }
+        }
+    }
+  });
 }
 
 function add_marker (latLng) {
@@ -528,16 +591,14 @@ function add_marker (latLng) {
   });
 }
 
-function obtenerDireccion (latLng, element) {
-  // Se obtiene la dirección a partir de la posición.
-  // El resultado es ingresado a al elemento que viene por parámetro.
+function obtenerDireccion (latLng, func) {
+  // func: función que se ejecutará como respuesta al pedido
+  // AJAX de Geocoding. 
+  // Prototipo: funcion (resultado, status)
   $('#map_canvas').gmap3({
     getaddress:{
         latLng: latLng,
-        callback: function(results){
-          debugger;
-          $(element).val(results[0].formatted_address);
-        }
+        callback: func
     }
   });
 }
@@ -562,7 +623,14 @@ function agregarMarcador (map, event) {
       $('#my-modal').modal('hide');
       return false;
     });
-    obtenerDireccion(event.latLng, $('#my-modal').find('#direccion'));
+    //obtenerDireccion(event.latLng, $('#my-modal').find('#direccion'));
+    obtenerDireccion(event.latLng, function (results, status) {
+      // La función se ejecuta como respuesta al pedido por AJAX.
+      if (status==google.maps.GeocoderStatus.OK){
+        debugger;
+        $('#my-modal #direccion').val(results[0].formatted_address);
+      }
+    });
     $('#my-modal #latitud').val(event.latLng.k);
     $('#my-modal #longitud').val(event.latLng.A);
     $('#my-modal #aceptarBache').on('click', function () {
@@ -620,12 +688,6 @@ function agregarMarcador (map, event) {
 
 
 function mostrarModal () {
-  //$('.modal-content').append(formularioString);
-  // $('.modal-content').load('document/formulario_ingresar_bache.html');
-  // $('#my-modal').modal('show');
-  // $('#my-modal').on('hidden.bs.modal',function (e) {
-  //   $('.modal-content').remove();
-  // });
   $('#small-modal').find('.modal-content').append(alertHtml);
   $('#small-modal').modal('show');
   $('#small-modal').on('hidden.bs.modal',function (e) {
@@ -673,9 +735,9 @@ function mostrarModalMarcador() {
       alert('result');
     }
   });
-  $('#my-modal').on('hidden.bs.modal',function (e) {
-    $('#my-modal').find('.form-horizontal').remove();
-  });
+  // $('#my-modal').on('hidden.bs.modal',function (e) {
+  //   $('#my-modal').find('.form-horizontal').remove();
+  // });
 }
 
 
