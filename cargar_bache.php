@@ -1,9 +1,9 @@
 <?php
-echo $_SERVER["QUERY_STRING"];
-// require_once('FirePHPCore/FirePHP.class.php');
-// ob_start();
-// $firephp = FirePHP::getInstance(true);    
-// $firephp->log("El query sting recibido es:".$_SERVER["QUERY_STRING"]);
+//echo $_SERVER["QUERY_STRING"];
+require_once('FirePHPCore/FirePHP.class.php');
+ob_start();
+$firephp = FirePHP::getInstance(true);    
+$firephp->log("El query sting recibido es:".$_SERVER["QUERY_STRING"]);
 
 if (isset($_POST["action"])) { 
   $nombre = $_POST['nombre']; 
@@ -79,8 +79,19 @@ if (isset($_SERVER["QUERY_STRING"])) {
                                 VALUES ( ".$_GET["latitud"].", ".$_GET["longitud"].", ".$_GET["altura"].", $id_criticidad, $id_calle)";
   $result = pg_query($query) or die('La consulta falló: ' . pg_last_error()); 
   
-  //$firephp->log("La query final para insertar el bache fue: ".$query);
+  $query = "SELECT id FROM baches WHERE latitud=".$_GET["latitud"]." and longitud=".$_GET["longitud"]." 
+            and altura=".$_GET["altura"]." and  id_criticidad=$id_criticidad and id_calle=$id_calle";
+  
+  $result = pg_query($query) or die('La consulta falló: ' . pg_last_error());
 
+  if ($result) { 
+    $row = pg_fetch_array($result, null,PGSQL_ASSOC);
+    $firephp->log("La query final para insertar el bache fue: ".$row["id"]);
+    echo json_encode($row);
+  } else { 
+    fail('Failed to add point.'); 
+  }
+  
   //echo "\n".json_encode(array('latitud' =>$_GET['latitud'], 'descripcion' =>$_GET['descripcion'],'longitud' =>$_GET['longitud'], 'nombre' =>$_GET['nombre']));  //Liberando el conjunto de los resultados
   pg_free_result($result);
   //Cerrando la conexion

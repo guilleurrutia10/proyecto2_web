@@ -336,7 +336,7 @@ function initialize() {
       }
    }
   });
-  map = selectorMap[0];   //map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+  map = $('#map_canvas').gmap3('get');   //map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 
   //Se añade el menu para eliminar los baches del mapa
   menuMapa=new Gmap3Menu($("#map_canvas"));
@@ -351,6 +351,7 @@ function initialize() {
     marker:{
       values: [myLatlng],
       data: 'Plaza Independencia',
+      tag: ['centrado'],
       events:{
             rightclick:function(marker,event,context){
               var m= $("#map_canvas").gmap3("get");
@@ -541,6 +542,14 @@ function add_marker (latLng) {
           mostrarModalMarcador();
         },
         mouseover: function (marker, event, context) {
+          debugger;
+          var pos= marker.getPosition();
+          var point= $("#map_canvas").gmap3("get").getProjection().fromLatLngToPoint(pos);
+          tooltip.get().css({
+            'position': 'absolute',
+            'top': point.y + 200,
+            'left': point.x + 50
+          });
           tooltip.open();
         },
         mouseout: function () {
@@ -621,14 +630,6 @@ function agregarMarcador (map, event) {
   });
 }
 
-function mostrarModal () {
-  $('#small-modal').find('.modal-content').append(alertHtml);
-  $('#small-modal').modal('show');
-  $('#small-modal').on('hidden.bs.modal',function (e) {
-    $('#small-modal').find('.row clearfix').remove();
-  });
-}
-
 function mostrarModalMarcador() {
   //$('.modal-content').append(formularioString);
   $('#my-modal').find('.modal-content').load('document/formularito.html', function () {
@@ -689,9 +690,6 @@ function agregarMarcadores (marcador) {
   {
     claves.push(key);
   }
-  // marcadores.forEach(function (mark, key) {
-  //   claves.push(key);
-  // });
   //Verificamos si ya existe el marcador obtenido de la bd en la lista
   //que mantiene el cliente se sus marcadores.
   var result = $.inArray(marcador.id, claves);
@@ -699,56 +697,11 @@ function agregarMarcadores (marcador) {
   if (result>=0)
     return;
 
-  $('#map_canvas').gmap3({
-    marker: {
-      latLng: [marcador.latitud, marcador.longitud],
-      title: marcador.nombre,
-      options: {
-        icon: "http://maps.google.com/mapfiles/marker_green.png"
-      },
-      events: {
-        click: function (marker, event, context) {
-          marcadorSeleccionado = marker;
-          mostrarModalMarcador();
-        },
-        rightclick:function(marker,event,context){
-          var m= $("#map_canvas").gmap3("get");
-          //Se obtiene la posicion del mapa y se reaiza una transormacion por medio del metodo
-          //fromLatLngToPoint() que reotrna un punto con las posiciones X e Y actuales del cursor en pixeles
-          var pos= marker.getPosition();
-          var point= m.getProjection().fromLatLngToPoint(pos);
-          eventoBorrarBache = event;
-          //Se añade el titulo al marcador
-          marker.setTitle(marcador.nombre);
-          //Se establece el marcador seleccioando que será eliminado
-          marcadorSeleccionado=marker;
-          //Se busca idDelMarcador a eliminar dentro de la coleccion, comparando latitud y longitud del marcador seleccionado
-          //var p=marcadorSeleccionado.getPosition();
-          $.each(marcadores,function(i,elem){
-              debugger;
-              if(elem.latitud==String(marcadorSeleccionado.getPosition().lat()) && elem.longitud==String(marcadorSeleccionado.getPosition().lng())  ){
-                    idMarcadorAEliminar=elem.id;
-              }
-          });
-          menuMapa.open(eventoBorrarBache,point.x,point.y);              
-        }
-      },
-      cluster: mycluster
-    }
-  });
+  add_marker([marcador.latitud, marcador.longitud]);
   marcadores[marcador.id] = marcador;
 }
 
-var alertHtml =''+ 
-      '<div class="alert alert-success alert-dismissable">'+
-         '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+
-        '<h4>'+
-          '<i class="fa fa-check-circle-o"></i> Alert!'+
-        '</h4> <strong>Succes!!</strong> El marcador ha sido enviado con éxito. <a href="#" class="alert-link">alert link</a>'+
-      '</div>'
-
 function registrarBache (dialog) {
-  //alert(marcadorSeleccionado.title + ' Long: ' + $(dialog).find('#longitud').val());
   var datos = {};
   //Se obtiene del objeto Marcador
   //datos['nombre'] =   $('#my-modal').find('.modal-content').find('#titulo').val();
@@ -761,7 +714,6 @@ function registrarBache (dialog) {
   var dir_split = direccion.split(' ');
   datos['calle'] = dir_split[0];
 
-  debugger;
   var unArray = $.makeArray(datos);
   //Se envian los datos por ajax
   $.ajax({
@@ -769,20 +721,24 @@ function registrarBache (dialog) {
     //url: '/my_examples/cargar_bache.php',
     url: 'cargar_bache.php',
     data: unArray[0],
-    succes: function (data) {
-      // body...
-      alert('Se agregó el marcador exitosamente: ' + data);
+    success: function (data) {
+      debugger;
+      new PNotify({
+        title: 'OK',
+        text: 'Se agregó el marcador exitosamente: ' + data,
+        type: 'success'
+      });
     }
   }).done(function(data) {
     //$('#my-modal').modal('hide');
-    // debugger;
-    $('#small-modal').find('.modal-content').append(alertHtml);
-    $('#small-modal').on('hidden.bs.modal', function () {
-       $('#small-modal').find('.alert').remove();
-     });
-    $('#small-modal').modal('show');
+    //$('#small-modal').find('.modal-content').append(alertHtml);
+    //$('#small-modal').modal('show');
   }).fail(function() {
-    alert( "error" );
+    new PNotify({
+            title: 'Error',
+            text: 'No se pudo agregar el marcador',
+            type: 'error'
+          });
     return false;
   }).always(function() {
     //alert( "complete" );
@@ -828,24 +784,11 @@ function borrarMarcador(){
   delete marcadores[idMarcadorAEliminar];
   $.get( "borrarBache.php", {"idbache":idMarcadorAEliminar} ,function(data) { 
       //alert( "Se borro el bache de la BD");
-    $('#small-modal').find('.modal-content').append(alertHtml);
-        $('#small-modal').on('hidden.bs.modal', function () {
-           $('#small-modal').find('.alert').remove();
-       });
-    $('#small-modal').modal('show');
+    new PNotify({
+      title: 'OK',
+      text: 'Se agregó el marcador exitosamente: ' + data,
+      type: 'success'
+    });
   });
-  //Se actualiza la coleccion de los marcadores utilizados
-  //llamando a obtenerbaches.php
-  //marcadores=[];
-  //Se borran los marcadores cargados en el mapa
-  //  $('#map_canvas').gmap3({
-  //   clear: {
-  //     name:"marker"
-  //   }
-  // });
-  // $.get( "obtener_bache.php", function( data ) {
-  //     var lista_marcadores = JSON.parse(data);
-  //     lista_marcadores.forEach(agregarMarcadores);
-  // });
 
 }

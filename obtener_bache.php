@@ -1,6 +1,6 @@
 <?php
     //TODO BORRAR PARTE DE FIREPHP
-require_once('../FirePHPCore/FirePHP.class.php');
+require_once('FirePHPCore/FirePHP.class.php');
 ob_start();
 $firephp = FirePHP::getInstance(true);
 
@@ -13,7 +13,7 @@ if(isset($_SERVER["QUERY_STRING"])) {
     while ($line = pg_fetch_array($result, null, PGSQL_ASSOC)) {
       # code...
       array_push($baches, $line);
-      $firephp->log("Se ha agregado la linea: ".$line);
+      //$firephp->log("Se ha agregado la linea: ".$line);
     }
     echo json_encode($baches);
   } else { 
