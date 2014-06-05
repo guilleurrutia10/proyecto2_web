@@ -156,6 +156,7 @@ $(function () {
   $('#botonBuscar').click(function (event) {
     onClickBotonBuscar(event, $("#inputGeoComplete").get());
   });
+  $('#comentarioSlider').click(clickComentario);
 });
 
 function onClickBotonBuscar(event, elem) {
@@ -167,12 +168,10 @@ function onClickBotonBuscar(event, elem) {
     }
   });
   var dir = $(elem).val();
-  debugger;
   $('#map_canvas').gmap3({
     getlatlng:{
         address: dir,
         callback: function(results, status){
-          debugger;
           if (status==google.maps.GeocoderStatus.OK){
             var latitud = results[0].geometry.location.lat();
             var longitud = results[0].geometry.location.lng();
@@ -219,7 +218,6 @@ function reestablecerMenuExport(){
 
 //Funcion utilizada para mostrar el modal y la tabla con los elementos
 function mostrarDialogoExportMark(marcadoresAExportar){
-    debugger;
     //Se cargan los marcadores en el Modal
     $('#modalRodrigo').modal('show');
     //Se vacia la tabla con los elementos anteriores
@@ -251,7 +249,6 @@ function mostrarDialogoExportMark(marcadoresAExportar){
       $("#tablaElementos").append(filaCarga);
       indiceMarkers=indiceMarkers- 1;
       geocoder.geocode({'latLng': latlng}, function(results, status) {
-          debugger;          
           indiceMarkers=indiceMarkers + 1;
           //Se remueve el icono de carga añadido anteriormente a la tabla
           var a1="#ic_carga_"+indiceMarkers;
@@ -281,7 +278,6 @@ function mostrarDialogoExportMark(marcadoresAExportar){
     //Se asocia el evento de click con un guardarJSON.php que escribe un archivo aleatorio
     //en el disco del server y redige al cliente hacia el JSON
    $("#guardarJSON").click(function(e){
-    debugger;
       if($($("#tablaElementos").find("tr i")).size()==0){ //Si se cargaron todos los elementos en la tabla 
                                                           //se habilita la descarga de los marcadores cargados en el mapa en formato JSON
         //Se crea el objeto JSON para uno de los marcadores seleccionados
@@ -436,10 +432,8 @@ function initialize() {
       //Se obtienen los marcadores que estan contenidos en el area del rectangulo
       var limites=rectangle.getBounds();
       var marcadoresAExportar=[];
-      debugger;
       $.each(marcadores,function(i, elem){
           //Se compara si cada uno de los marcadores esta dentro de los limites del elemento
-          debugger;
           var posicion= new google.maps.LatLng($(elem).attr("latitud"),$(elem).attr("longitud"),true);
           if(limites.contains(posicion) == true){
               marcadoresAExportar.push(elem);
@@ -475,7 +469,6 @@ function agregarMarcador_clcik(event) {
   $('#my-modal .modal-content').load('document/formularito.html', function () {
     $('#my-modal').find('#direccion').on('blur', function (event) {
       obtenerLatLng($(this).val(), function(results, status){
-          debugger;
           if (status==google.maps.GeocoderStatus.OK){
             var latitud = results[0].geometry.location.lat();
             var longitud = results[0].geometry.location.lng();
@@ -504,7 +497,6 @@ function agregarMarcador_clcik(event) {
       // Se debería deja a registrar la responsabilidad de crear el marcador y
       // agregar el marcador al mapa.
       //crearMarcador();
-      debugger;
       if (registrarBache($('#my-modal').get())==true)
       {
         add_marker([
@@ -539,10 +531,10 @@ function add_marker (latLng) {
       events: {
         click: function (marker, event, context) {
           marcadorSeleccionado = marker;
-          mostrarModalMarcador();
+          mostrarAgregarComentarios(marcadorSeleccionado);
+          //mostrarModalMarcador();
         },
         mouseover: function (marker, event, context) {
-          debugger;
           var pos= marker.getPosition();
           var point= $("#map_canvas").gmap3("get").getProjection().fromLatLngToPoint(pos);
           tooltip.get().css({
@@ -629,54 +621,77 @@ function agregarMarcador (map, event) {
     $('#my-modal').modal('show');
   });
 }
-
-function mostrarModalMarcador() {
-  //$('.modal-content').append(formularioString);
-  $('#my-modal').find('.modal-content').load('document/formularito.html', function () {
-    $('#my-modal').find('#cancelarBache').on('click', function () {
-      $('#my-modal').modal('hide');
-    });
-    $('#my-modal').find('#aceptarBache').on('click', registrarBache);
-  });
   
-  geocoder.geocode({'location':marcadorSeleccionado.position}, function (results, status) {
-    if (status == google.maps.GeocoderStatus.OK) 
-    {
-      var latLng = results[0].geometry.location;
-      var longitude = results[0].geometry.location.lng;
-      var address = results[0].formatted_address;
-
-     //AÑADIDO PARA PROPOSITOS DE DEBUG
-     $('#my-modal').find('.modal-content').find('#titulo').val("Bache de condarco 1100");
-     $('#my-modal').find('.modal-content').find('#descripcion').val("bache exageradamente grande");
-
-
-      $('#my-modal').find('.modal-content').find('#latitud').val(marcadorSeleccionado.position.k);
-      $('#my-modal').find('.modal-content').find('#latitud').attr({'readOnly':true});
-      $('#my-modal').find('.modal-content').find('#longitud').val(marcadorSeleccionado.position.A);
-      $('#my-modal').find('.modal-content').find('#longitud').attr({'readOnly':true});
-      //alert(address);
-      $('#my-modal').find('.modal-content').find('#direccion').val(address);
-      
-
-      $('#my-modal').find('.modal-content').find('#direccion').attr({'readOnly':true});
-      $('#my-modal').modal('show');
-    } 
-    else 
-    {
-      //Ver intentar volver a consultar la direccion.
-      result = "Unable to find address: " + status;
-      alert('result');
-    }
-  });
-
+function clickComentario(event) {
+  // body...
+  $('#formComentario').slideToggle();
+  // if($('#formComentario').is(':visible'))
+  //   $('#formComentario').slideUp();
+  // else
+  //   $('#formComentario').slideDown();
 }
 
+function mostrarAgregarComentarios(marcador) {
+  $('#modalComentario').find('.modal-body').load('document/comentarios.html', function () {
+  });
+  $('#modalComentario').modal('show');
+  
+  $('#enviarBache').click(function (argument) {
+    var id = buscarBache(marcadorSeleccionado.getPosition());
+    if (id==null)
+    {
+      new PNotify({
+        title: 'Error',
+        text: 'Error al buscar el identificador del bache' + marcadorSeleccionado.getPosition(),
+        type: 'error'
+      });
+      return;
+    }
+    new PNotify({
+      title: 'OK',
+      text: 'Identificador del bache' + id,
+      type: 'success'
+    });
+    var comentario = {'id': id, 'descripcion': $('#descripcionBache').val()};
+    $.ajax({
+      type:'GET',
+      url: 'cargar_comentario.php',
+      data: comentario
+      
+    })
+  });
+  // $.ajax({
+  //   type:'GET',
+  //   url: 'cargar_comentario.php',
+  //   data: unArray[0],
+  //   success: function (data) {
+  //     debugger;
+  //     new PNotify({
+  //       title: 'OK',
+  //       text: 'Se agregó el comentario exitosamente: ' + data,
+  //       type: 'success'
+  //     });
+  //   }
+  // }).done(function(data) {
+  //   //$('#my-modal').modal('hide');
+  //   //$('#small-modal').find('.modal-content').append(alertHtml);
+  //   //$('#small-modal').modal('show');
+  // }).fail(function() {
+  //   new PNotify({
+  //           title: 'Error',
+  //           text: 'No se pudo agregar el comentario',
+  //           type: 'error'
+  //         });
+  //   return false;
+  // }).always(function() {
+  //   //alert( "complete" );
+  // });
+
+}
 
 function obtenerBaches () {
   // fire off the request to localhost/my_examples/obtener_bache.php
   $.get( "obtener_bache.php", function( data ) {
-    debugger;
     var lista_marcadores = JSON.parse(data);
     lista_marcadores.forEach(agregarMarcadores);
   });
@@ -722,7 +737,6 @@ function registrarBache (dialog) {
     url: 'cargar_bache.php',
     data: unArray[0],
     success: function (data) {
-      debugger;
       new PNotify({
         title: 'OK',
         text: 'Se agregó el marcador exitosamente: ' + data,
@@ -779,7 +793,6 @@ function detectarUbicacionAct(){
 function borrarMarcador(){
   //Se borra el marcador del mapa y de la coleccion de marcadores
   //mantenida en el navegador
-  debugger; 
   marcadorSeleccionado.setMap(null);
   delete marcadores[idMarcadorAEliminar];
   $.get( "borrarBache.php", {"idbache":idMarcadorAEliminar} ,function(data) { 
@@ -791,4 +804,13 @@ function borrarMarcador(){
     });
   });
 
+}
+function buscarBache (pos) {
+  var id = null;
+  $.each(marcadores,function(i,elem){
+    if(elem.latitud==String(pos.lat()) && elem.longitud==String(pos.lng())){
+          id=elem.id;
+    }
+  });
+  return id;
 }
