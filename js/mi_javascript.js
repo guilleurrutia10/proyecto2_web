@@ -142,8 +142,6 @@ $(function () {
   $("#verBaches").on("click", obtenerBaches);
   $("#exportarBaches").click(exportarBaches);
   $("#cancelarExportacion").click(reestablecerMenuExport);
-  //Se detecta la ubicacion actual
-  detectarUbicacionAct();
   //Utilizando Geocomplete
   $("#inputGeoComplete").geocomplete();  // Option 1: Call on element.
   // Se registra el evento click de agregarMarcador
@@ -383,7 +381,7 @@ function initialize() {
               var pos=posicion.data.latLng;
               var mp=$("#map_canvas").gmap3("get");
               mp.panTo(pos);  
-              mp.setZoom(mp.getZoom() + 3);
+              mp.setZoom(mp.getZoom() + 1);
             }
           },
           0: {
@@ -461,6 +459,8 @@ function initialize() {
     map: map
   });
 
+  //Se inicializa la opcion para detectar la ubicacion actual con el mapa
+  $('#verUbicacionAct').click(detectarUbicacionAct);
 }
 
 function agregarMarcador_clcik(event) {
@@ -716,6 +716,8 @@ function agregarMarcadores (marcador) {
   marcadores[marcador.id] = marcador;
 }
 
+
+
 function registrarBache (dialog) {
   var datos = {};
   //Se obtiene del objeto Marcador
@@ -773,20 +775,72 @@ function Marcador () {
 
 function detectarUbicacionAct(){
   //apoximacion de la W3C para la deteccion de la ubicación
-  // if(navigator.geolocation) {
-  //   navigator.geolocation.getCurrentPosition(function(position) {
-  //     var ubicacionAct = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
-  //     var marker = new google.maps.Marker({
-  //         position: ubicacionAct,
-  //         map: map,
-  //         title: 'Mi posicion actual'
-  //     });
-  //     marker.setMap(map);
-  //       map.setCenter(ubicacionAct);
-  //     });
+  //if(navigator.geolocation) {
+    $('#map_canvas').gmap3({
+      getgeoloc:{
+        callback: function(latLng){
+            if(latLng){
+                $(this).gmap3({
+                    marker:{
+                      latLng: latLng,
+                      tag: ['centrado'],
+                      options:{
+                          icon: "imagenes/you-are-here-2.png"
+                      }
+                    },
+                    map:{
+                      options:{
+                        zoom: 18,
+                        center: latLng                    
+                      }
+                    }
+                });
+            }else{
+              new PNotify({
+                title: 'Error',
+                text: 'Tu navegador no soporta la geolicacion para detectar tu ubicación actual :-(',
+                type: 'error'
+              });        
+            }
+        }
+      }
+    });
+    // navigator.geolocation.getCurrentPosition(function(position) {
+      // var ubicacionAct = [position.coords.latitude,position.coords.longitude];
+      // debugger;
+      // $('#map_canvas').gmap3({
+      //         map: {
+      //           options:{
+      //             center: [latitud, longitud],
+      //             zoom: 18 
+      //           }
+      //         },
+      //         marker:{
+      //           latLng: [latitud, longitud],
+      //           options:{
+      //             icon: "imagenes/direction_down.png"
+      //           },
+      //           tag: ['centrado']
+      //         }
+      // });
+    // });//FIn de getcurrentPositionHandler
+      // var marker = new google.maps.Marker({
+      //     posicionsition: ubicacionAct,
+      //     map: map,
+      //     title: 'Mi posicion actual'
+      // });
+      // marker.setMap(map);
+      //   map.setCenter(ubicacionAct);
+      // });
   // }else {// Browser doesn't support Geolocation
-  //   alert("Tu navegador no soporta la geolicacion para detectar tu ubicación actual");
+  //  new PNotify({
+  //             title: 'Error',
+  //             text: 'Tu navegador no soporta la geolicacion para detectar tu ubicación actual :-(',
+  //             type: 'error'
+  //     });        
   // }
+
+
 } 
 
 //Este metodo borra los marcadores tanto del mapa en el webbrowser, como en la base de datos!
@@ -796,15 +850,31 @@ function borrarMarcador(){
   marcadorSeleccionado.setMap(null);
   delete marcadores[idMarcadorAEliminar];
   $.get( "borrarBache.php", {"idbache":idMarcadorAEliminar} ,function(data) { 
-      //alert( "Se borro el bache de la BD");
-    new PNotify({
-      title: 'OK',
-      text: 'Se agregó el marcador exitosamente: ' + data,
-      type: 'success'
-    });
+    var rta= JSON.parse(data);
+    if(rta.estado=="BORRADO_FALLO"){
+      new PNotify({
+        title: 'Error en el borrado del bache',
+        text: 'Ocurrio un error al borrar el bache de la base de datos',
+        type: 'error'
+      });  
+    }else{
+      new PNotify({
+              title: 'Ok',
+              text: 'Se eliminó el marcador exitósamente.',
+              type: 'success'
+      });        
+    }
   });
-
+  debugger;
+  //Se actualiza la coleccion de marcadores añadidos a la funcion de clustering
+  mycluster.clear();
+  $.each(marcadores,function(i,elem){
+      debugger;
+      add_marker([marcadores[i].latitud,marcadores[i].longitud]);
+  });
 }
+
+
 function buscarBache (pos) {
   var id = null;
   $.each(marcadores,function(i,elem){
