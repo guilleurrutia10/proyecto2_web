@@ -20,7 +20,7 @@
 		if ($result) {
 			$valores= array("estado" =>"BORRADO_OK");			
 		}else{ 
-			$valores= array("estado" =>"BORRADO_OK");
+			$valores= array("estado" =>"BORRADO_FALLO");
 		}
 		//$firephp->log("Resultado de la consulta: ".$result);
 		$datos_json=json_encode($valores);
