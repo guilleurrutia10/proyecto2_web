@@ -623,12 +623,7 @@ function agregarMarcador (map, event) {
 }
   
 function clickComentario(event) {
-  // body...
   $('#formComentario').slideToggle();
-  // if($('#formComentario').is(':visible'))
-  //   $('#formComentario').slideUp();
-  // else
-  //   $('#formComentario').slideDown();
 }
 
 function mostrarAgregarComentarios(marcador) {
@@ -795,6 +790,7 @@ function borrarMarcador(){
   //mantenida en el navegador
   marcadorSeleccionado.setMap(null);
   delete marcadores[idMarcadorAEliminar];
+
   $.get( "borrarBache.php", {"idbache":idMarcadorAEliminar} ,function(data) { 
       //alert( "Se borro el bache de la BD");
     new PNotify({
@@ -805,6 +801,7 @@ function borrarMarcador(){
   });
 
 }
+
 function buscarBache (pos) {
   var id = null;
   $.each(marcadores,function(i,elem){
