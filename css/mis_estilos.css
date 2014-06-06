@@ -51,9 +51,9 @@
 }
 
 .jumbotron-special{
-    width:60%;
+    width:100%;
     height: auto;
-    background-color:#807CFD !important;
+    background-color:#1995DC !important; 
     padding-bottom:10px;
     padding-top:10px;
     margin:0px;

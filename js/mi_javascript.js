@@ -155,6 +155,13 @@ $(function () {
     onClickBotonBuscar(event, $("#inputGeoComplete").get());
   });
   $('#comentarioSlider').click(clickComentario);
+  $('#modalComentario').on('hidden.bs.modal',function (e) {
+    // Se elimina el contenido al ocultarse el mismo.
+    $(this).removeData('modal');
+    $("#cabeceraComentario").children('p').remove();
+  });
+
+
 });
 
 function onClickBotonBuscar(event, elem) {
@@ -626,12 +633,54 @@ function clickComentario(event) {
   $('#formComentario').slideToggle();
 }
 
+
+function agregarComentarios (elementoDOM) {
+  var id = buscarBache(marcadorSeleccionado.getPosition());
+  var idJSON={ "id": id };
+  $.ajax({
+      type:'GET',
+      url: 'obtener_comentario.php',
+      data: idJSON,
+      success: function  (respuesta) {
+        var respJSON= JSON.parse(respuesta);
+        if(respJSON!=undefined){
+          $(elementoDOM).empty();
+          $.each(respJSON,function(i,elem){
+              $(elementoDOM).append(' <div contenteditable="true" class="jumbotron-special"><p style="text-align: center !important;color:#FFFFFF;"> '+ elem.descripcion+'</p> </div>');
+          });
+        }else{
+            new PNotify({
+              title: 'ERROR',
+              text: 'Error al registrar el comentario en la base de datos',
+              type: 'error'
+            });   
+        }
+        $("#cabeceraComentario").append('<p style="text-align: center !important;color:#000000;"> '+ id+'</p> </div>');
+        // if(respJSON.estado=="OK"){
+        //   $(elementoDOM).append();         
+        // }else{
+        //   new PNotify({
+        //     title: 'ERROR',
+        //     text: 'Error al registrar el comentario en la base de datos',
+        //     type: 'error'
+        //   });   
+        // }
+      }
+    });
+}
+
+
 function mostrarAgregarComentarios(marcador) {
-  $('#modalComentario').find('.modal-body').load('document/comentarios.html', function () {
-  });
+  //BACKUP
+  // $('#modalComentario').find('.modal-body').load('document/comentarios.html', function () {
+  // });
+
+  agregarComentarios('#modalComentario .modal-body');
+
   $('#modalComentario').modal('show');
   
   $('#enviarBache').click(function (argument) {
+    debugger;
     var id = buscarBache(marcadorSeleccionado.getPosition());
     if (id==null)
     {
@@ -651,9 +700,25 @@ function mostrarAgregarComentarios(marcador) {
     $.ajax({
       type:'GET',
       url: 'cargar_comentario.php',
-      data: comentario
-      
-    })
+      data: comentario,
+      success: function  (respuesta) {
+        var respJSON= JSON.parse(respuesta);
+        if(respJSON.estado=="OK"){
+           new PNotify({
+            title: 'OK',
+            text: 'Se ha registrado el comentario correctamente',
+            type: 'success'
+          });
+          $("#modalComentario").modal('hide'); 
+        }else{
+          new PNotify({
+            title: 'ERROR',
+            text: 'Error al registrar el comentario en la base de datos',
+            type: 'error'
+          });   
+        }
+      }
+    });
   });
   // $.ajax({
   //   type:'GET',
