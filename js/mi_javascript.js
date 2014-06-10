@@ -17,7 +17,8 @@ $(function(){
   
 });
 
-
+//Referencia al marcador que se eliminará cuando se raelice click derecho.
+var idMarcadorAEliminar;
 
 
 function iniciarDrawingManager(){
@@ -108,8 +109,7 @@ var marcadores={};
 var marcadorSeleccionado;
 
 
-//Referencia al marcador que se eliminará cuando se raelice click derecho.
-var idMarcadorAEliminar;
+
 
 //referencia al cluster;
 var mycluster=null;
@@ -531,10 +531,14 @@ function obtenerLatLng (address, func) {
   });
 }
 
-function add_marker (latLng) {
+
+function add_marker (latLng,tag) {
   $('#map_canvas').gmap3({
     marker: {
-      latLng: latLng,
+      latLng: latLng, 
+      id: tag,
+      //BACKUP
+      //latLng: latLng,
       events: {
         click: function (marker, event, context) {
           marcadorSeleccionado = marker;
@@ -577,6 +581,9 @@ function add_marker (latLng) {
     }
   });
 }
+
+
+
 
 function obtenerDireccion (latLng, func) {
   // func: función que se ejecutará como respuesta al pedido
@@ -749,6 +756,9 @@ function mostrarAgregarComentarios(marcador) {
 
 }
 
+
+
+
 function obtenerBaches () {
   // fire off the request to localhost/my_examples/obtener_bache.php
   $.get( "obtener_bache.php", function( data ) {
@@ -760,6 +770,7 @@ function obtenerBaches () {
 
 //Agregar marcadores del servidor
 function agregarMarcadores (marcador) { 
+  debugger;
   var claves = [];
   for (var key in marcadores)
   {
@@ -772,7 +783,10 @@ function agregarMarcadores (marcador) {
   if (result>=0)
     return;
 
-  add_marker([marcador.latitud, marcador.longitud]);
+
+  add_marker([marcador.latitud, marcador.longitud],marcador.id);
+  //BACKUP
+  //add_marker([marcador.latitud, marcador.longitud]);
   marcadores[marcador.id] = marcador;
 }
 
@@ -905,12 +919,20 @@ function detectarUbicacionAct(){
 
 //Este metodo borra los marcadores tanto del mapa en el webbrowser, como en la base de datos!
 function borrarMarcador(){
-  //Se borra el marcador del mapa y de la coleccion de marcadores
-  //mantenida en el navegador
+  debugger;
+  //Se borra el contenido de cluster y se actualiza
+  // mycluster.clear();
+  // //Se actualiza la lista del marcadores (vaciando el diccionario de marcadores) con los marcadores traidos desde el servidor
+  // //añadiendo de nuevo la lista de marcadores actualizados desde el servidor
+  // marcadores={};
+  // obtenerBaches();
+
+  // //Se borra el marcador del mapa y de la coleccion de marcadores
+  // //mantenida en el navegador
   marcadorSeleccionado.setMap(null);
   delete marcadores[idMarcadorAEliminar];
-
-  $.get( "borrarBache.php", {"idbache":idMarcadorAEliminar} ,function(data) { 
+  $.get( "borrarBache.php", { "idbache": idMarcadorAEliminar} ,function(data) { 
+    debugger;
     var rta= JSON.parse(data);
     if(rta.estado=="BORRADO_FALLO"){
       new PNotify({
@@ -923,16 +945,19 @@ function borrarMarcador(){
               title: 'Ok',
               text: 'Se eliminó el marcador exitósamente.',
               type: 'success'
-      });        
+      });
+      mycluster.clearById(idMarcadorAEliminar);
+      //ejemplo
+      //mycluster.clearById("19");
     }
   });
-  debugger;
+  // debugger;
   //Se actualiza la coleccion de marcadores añadidos a la funcion de clustering
-  mycluster.clear();
-  $.each(marcadores,function(i,elem){
-      debugger;
-      add_marker([marcadores[i].latitud,marcadores[i].longitud]);
-  });
+  // mycluster.clear();
+  // $.each(marcadores,function(i,elem){
+  //     debugger;
+  //     add_marker(elem.latitud,elem.longitud]);
+  // });
 }
 
 function buscarBache (pos) {

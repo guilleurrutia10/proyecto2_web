@@ -1,14 +1,22 @@
 <?php 
 		//TODO BORRAR ESTO!! Solo para propositos de debugging!
-		// require_once('FirePHPCore/FirePHP.class.php');
-		// ob_start();
-		// $firephp = FirePHP::getInstance(true);		
+		require_once('FirePHPCore/FirePHP.class.php');
+		ob_start();
+		$firephp = FirePHP::getInstance(true);		
 		$idbache=$_GET['idbache'];	
+		$firephp->log("idbache enviado al servidor: ".$idbache);
+
 		//$id=$_GET['idBache'];	
 		// $latitud=$_GET['latitud'];	
 		// $longitud=$_GET['longitud'];	
 		//$firephp->log("parametros recibidos por GET--> Latitud=".$latitud."; longitud=".$longitud);
 		$dbconection = pg_connect('host=localhost dbname=basebaches user=adminpepe password=adminpepe') or die('No se ha podido conectar: ' . pg_last_error());
+
+		//Se borran las observaciones asociadas a un bache (si existe alguna)
+		$queryObs="DELETE FROM observacion WHERE id_bache='".$idbache."'";
+		$result1 = pg_query($queryObs) or die('La consulta falló: ' . pg_last_error()); 
+		
+
 		$query ='DELETE FROM baches WHERE  id='."'".$idbache."'";
 		//$firephp->log("La queryString armada es=".$query);
 
