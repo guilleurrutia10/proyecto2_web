@@ -79,7 +79,7 @@ if (isset($_SERVER["QUERY_STRING"])) {
                                 VALUES ( ".$_GET["latitud"].", ".$_GET["longitud"].", ".$_GET["altura"].", $id_criticidad, $id_calle)";
   $result = pg_query($query) or die('La consulta falló: ' . pg_last_error()); 
   
-  $query = "SELECT id FROM baches WHERE latitud=".$_GET["latitud"]." and longitud=".$_GET["longitud"]." 
+  $query = "SELECT * FROM baches WHERE latitud=".$_GET["latitud"]." and longitud=".$_GET["longitud"]." 
             and altura=".$_GET["altura"]." and  id_criticidad=$id_criticidad and id_calle=$id_calle";
   
   $result = pg_query($query) or die('La consulta falló: ' . pg_last_error());

@@ -504,14 +504,14 @@ function agregarMarcador_clcik(event) {
       // Se debería deja a registrar la responsabilidad de crear el marcador y
       // agregar el marcador al mapa.
       //crearMarcador();
-      if (registrarBache($('#my-modal').get())==true)
-      {
-        add_marker([
-            $('#my-modal').find('#latitud').val(),
-            $('#my-modal').find('#longitud').val()
-          ]);
-      }
-        
+      // if (registrarBache($('#my-modal').get())==true)
+      // {
+      //   add_marker([
+      //       $('#my-modal').find('#latitud').val(),
+      //       $('#my-modal').find('#longitud').val()
+      //     ]);
+      // }
+      registrarBache($('#my-modal').get());
       $('#my-modal').modal('hide');
       return false;
     });
@@ -627,8 +627,9 @@ function agregarMarcador (map, event) {
     $('#my-modal #latitud').val(event.latLng.k);
     $('#my-modal #longitud').val(event.latLng.A);
     $('#my-modal #aceptarBache').on('click', function () {
-      if (registrarBache($('#my-modal').get())==true)
-        add_marker(event.latLng);
+      // if (registrarBache($('#my-modal').get())==true)
+      //   add_marker(event.latLng);
+      registrarBache($('#my-modal').get());
       $('#my-modal').modal('hide');
       return false;
     });
@@ -812,12 +813,15 @@ function registrarBache (dialog) {
     //url: '/my_examples/cargar_bache.php',
     url: 'cargar_bache.php',
     data: unArray[0],
-    success: function (data) {
+    success: function (marcador) {
+      var data = JSON.parse(marcador);
       new PNotify({
         title: 'OK',
-        text: 'Se agregó el marcador exitosamente: ' + data,
+        text: 'Se agregó el marcador exitosamente: ' + data.latitud + ', ' +data.longitud ,
         type: 'success'
       });
+      add_marker([data.latitud, data.longitud], data.id);
+      marcadores[data.id] = data;
     }
   }).done(function(data) {
     //$('#my-modal').modal('hide');
@@ -932,7 +936,6 @@ function borrarMarcador(){
   marcadorSeleccionado.setMap(null);
   delete marcadores[idMarcadorAEliminar];
   $.get( "borrarBache.php", { "idbache": idMarcadorAEliminar} ,function(data) { 
-    debugger;
     var rta= JSON.parse(data);
     if(rta.estado=="BORRADO_FALLO"){
       new PNotify({
