@@ -159,6 +159,8 @@ $(function () {
     // Se elimina el contenido al ocultarse el mismo.
     $(this).removeData('modal');
     $("#cabeceraComentario").children('p').remove();
+    $('#enviarBache').unbind('click');
+    $('#descripcionBache').empty();
   });
 
 
@@ -656,6 +658,7 @@ function agregarComentarios (elementoDOM) {
           $.each(respJSON,function(i,elem){
               $(elementoDOM).append(' <div contenteditable="true" class="jumbotron-special"><p style="text-align: center !important;color:#FFFFFF;"> '+ elem.descripcion+'</p> </div>');
           });
+          
         }else{
             new PNotify({
               title: 'ERROR',
@@ -663,16 +666,19 @@ function agregarComentarios (elementoDOM) {
               type: 'error'
             });   
         }
-        $("#cabeceraComentario").append('<p style="text-align: center !important;color:#000000;"> '+ id+'</p> </div>');
-        // if(respJSON.estado=="OK"){
-        //   $(elementoDOM).append();         
-        // }else{
-        //   new PNotify({
-        //     title: 'ERROR',
-        //     text: 'Error al registrar el comentario en la base de datos',
-        //     type: 'error'
-        //   });   
-        // }
+        //var idBache = respJSON[0].id_bache;
+        var marcador = marcadores[id];
+        obtenerDireccion([marcador.latitud, marcador.longitud], function (results, status) {
+          // La función se ejecuta como respuesta al pedido por AJAX.
+          if (status==google.maps.GeocoderStatus.OK){
+            debugger;
+            $("#cabeceraComentario").append('<p style="text-align: center !important;color:#000000;"> '+ results[0].formatted_address +'</p> </div>');
+            $("#cabeceraComentario").append('<p style="text-align: center !important;color:#000000;"> '+ results[0].geometry.location.lat()+', '+ results[0].geometry.location.lng()+'</p> </div>');
+          }else{
+            $("#cabeceraComentario").append('<p style="text-align: center !important;color:#000000;">Dirección no disponible</p> </div>');
+          }
+        });
+
       }
     });
 }
@@ -717,7 +723,7 @@ function mostrarAgregarComentarios(marcador) {
             text: 'Se ha registrado el comentario correctamente',
             type: 'success'
           });
-          $("#modalComentario").modal('hide'); 
+          $("#modalComentario").modal('hide');
         }else{
           new PNotify({
             title: 'ERROR',
@@ -728,33 +734,6 @@ function mostrarAgregarComentarios(marcador) {
       }
     });
   });
-  // $.ajax({
-  //   type:'GET',
-  //   url: 'cargar_comentario.php',
-  //   data: unArray[0],
-  //   success: function (data) {
-  //     debugger;
-  //     new PNotify({
-  //       title: 'OK',
-  //       text: 'Se agregó el comentario exitosamente: ' + data,
-  //       type: 'success'
-  //     });
-  //   }
-  // }).done(function(data) {
-  //   //$('#my-modal').modal('hide');
-  //   //$('#small-modal').find('.modal-content').append(alertHtml);
-  //   //$('#small-modal').modal('show');
-  // }).fail(function() {
-  //   new PNotify({
-  //           title: 'Error',
-  //           text: 'No se pudo agregar el comentario',
-  //           type: 'error'
-  //         });
-  //   return false;
-  // }).always(function() {
-  //   //alert( "complete" );
-  // });
-
 }
 
 
